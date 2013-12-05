@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -42,22 +41,18 @@ namespace DD.CBU.Compute.Api.Client
 		/// <param name="regionName">
 		///		The name of the region whose CaaS API is targeted by the client.
 		/// </param>
-		[SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "A useful, but irritatingly stupid rule.")]
 		public ComputeApiClient(string regionName)
 		{
 			if (String.IsNullOrWhiteSpace(regionName))
 				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'regionName'.", "regionName");
 
-
-			_httpClient = new HttpClient(_clientMessageHandler)
-			{
-				BaseAddress = new Uri(
-					String.Format(
-						"https://api-{0}.dimensiondata.com/oec/0.9/",
-						regionName
-						)
-					)
-			};
+			_httpClient = new HttpClient(_clientMessageHandler);
+			_httpClient.BaseAddress = new Uri(
+				String.Format(
+					"https://api-{0}.dimensiondata.com/oec/0.9/myaccount",
+					regionName
+				)
+			);
 		}
 
 		/// <summary>
