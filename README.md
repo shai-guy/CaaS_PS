@@ -1,4 +1,4 @@
 CaaS_PS
 =======
 
-Powershell module for controlling OpSource CaaS via REST API.
+Powershell module for controlling Dimension Data CaaS via REST API.
