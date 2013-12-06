@@ -6,6 +6,7 @@
 			<Value>Autofac</Value>
 			<Value>CBU</Value>
 			<Value>Caa</Value>
+			<Value>uninitialised</Value>
 		</CollectionProperty>
 	</GlobalSettings>
 	<Parsers>

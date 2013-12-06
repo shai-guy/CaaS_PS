@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Api.Client
 {
-	using System.Net.Http.Formatting;
 	using Contracts.Directory;
 
 	/// <summary>
@@ -118,7 +118,7 @@ namespace DD.CBU.Compute.Api.Client
 		/// <summary>
 		///		Is the API client currently logged in to the CaaS API?
 		/// </summary>
-		public bool LoggedIn
+		public bool IsLoggedIn
 		{
 			get
 			{
@@ -145,16 +145,14 @@ namespace DD.CBU.Compute.Api.Client
 			CheckDisposed();
 
 			if (_account != null)
-				throw new InvalidOperationException("Already logged in.");
+				throw ComputeApiException.AlreadyLoggedIn();
 
 			_clientMessageHandler.Credentials = accountCredentials;
 			_clientMessageHandler.PreAuthenticate = true;
 
-			HttpResponseMessage response = await _httpClient.GetAsync(ApiUrls.MyAccount);
-			response.EnsureSuccessStatusCode(); // TODO: Better error-handling.
-
-			_account = await response.Content.XmlDeserializeAsync<Account>();
-
+			_account = await ApiGetAsync<Account>(ApiUris.MyAccount);
+			Debug.Assert(_account != null, "_account != null");
+			
 			return _account;
 		}
 
@@ -166,11 +164,45 @@ namespace DD.CBU.Compute.Api.Client
 			CheckDisposed();
 
 			if (_account == null)
-				throw new InvalidOperationException("Not currently logged in.");
+				throw ComputeApiException.NotLoggedIn();
 
 			_account = null;
 			_clientMessageHandler.Credentials = null;
 			_clientMessageHandler.PreAuthenticate = false;
 		}
-    }
+
+		#region WebAPI invocation
+
+		/// <summary>
+		///		Invoke a CaaS API operation using a HTTP GET request.
+		/// </summary>
+		/// <typeparam name="TResult">
+		///		The XML-serialisable data contract type into which the response will be deserialised.
+		/// </typeparam>
+		/// <param name="relativeOperationUri">
+		///		The operation URI (relative to the CaaS API's base URI).
+		/// </param>
+		/// <returns>
+		///		The operation result.
+		/// </returns>
+		async Task<TResult> ApiGetAsync<TResult>(Uri relativeOperationUri)
+		{
+			if (relativeOperationUri == null)
+				throw new ArgumentNullException("relativeOperationUri");
+
+			if (relativeOperationUri.IsAbsoluteUri)
+				throw new ArgumentException("The supplied URI is not a relative URI.", "relativeOperationUri");
+
+			CheckDisposed();
+
+			using (HttpResponseMessage response = await _httpClient.GetAsync(relativeOperationUri))
+			{
+				response.EnsureSuccessStatusCode(); // TODO: Better error-handling.
+
+				return await response.Content.XmlDeserializeAsync<TResult>();
+			}
+		}
+
+		#endregion // WebAPI invocation
+	}
 }
