@@ -1,4 +1,4 @@
-CaaS_PS
-=======
+CaaS Powershell
+===============
 
-Powershell module for controlling Dimension Data CaaS via REST API.
+WebAPI client library and Powershell module for controlling the Dimension Data Compute-as-a-Service (CaaS) facility.

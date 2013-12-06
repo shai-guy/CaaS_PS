@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace DD.CBU.Compute.Api.Contracts.Directory
 {
-	using System.Collections.Generic;
-
 	/// <summary>
 	///		Represents a CaaS user account.
 	/// </summary>
 	[XmlRoot("Account", Namespace = XmlNamespaceConstants.Directory)]
 	public class Account
+		: IAccount
 	{
 		/// <summary>
 		///		Roles (if any) to which the account belongs.
@@ -123,6 +123,17 @@ namespace DD.CBU.Compute.Api.Contracts.Directory
 			get
 			{
 				return _memberOfRoles;
+			}
+		}
+
+		/// <summary>
+		///		Roles (if any) to which the account belongs.
+		/// </summary>
+		IReadOnlyList<IRole> IAccount.MemberOfRoles
+		{
+			get
+			{
+				return MemberOfRoles;
 			}
 		}
 	}

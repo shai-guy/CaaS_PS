@@ -5,18 +5,22 @@ using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Api.Client
 {
+	using System.Net.Http.Formatting;
 	using Contracts.Directory;
 
 	/// <summary>
 	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
 	/// </summary>
+	/// <remarks>
+	///		This client is async but, from a concurrency perspective, it not thread-safe.
+	/// </remarks>
     public sealed class ComputeApiClient
 		: IDisposable
 	{
 		/// <summary>
 		///		The <see cref="HttpMessageHandler"/> used to customise communications with the CaaS API.
 		/// </summary>
-		HttpClientHandler	_clientMessageHandler;
+		HttpClientHandler	_clientMessageHandler = new HttpClientHandler();
 
 		/// <summary>
 		///		The <see cref="HttpClient"/> used to communicate with the CaaS API.
@@ -49,7 +53,7 @@ namespace DD.CBU.Compute.Api.Client
 			_httpClient = new HttpClient(_clientMessageHandler);
 			_httpClient.BaseAddress = new Uri(
 				String.Format(
-					"https://api-{0}.dimensiondata.com/oec/0.9/myaccount",
+					"https://api-{0}.dimensiondata.com/oec/0.9/",
 					regionName
 				)
 			);
@@ -60,6 +64,9 @@ namespace DD.CBU.Compute.Api.Client
 		/// </summary>
 		public void Dispose()
 		{
+			if (_isDisposed)
+				return;
+
 			if (_clientMessageHandler != null)
 			{
 				_clientMessageHandler.Dispose();
@@ -72,7 +79,9 @@ namespace DD.CBU.Compute.Api.Client
 				_httpClient = null;
 			}
 
-			_isDisposed = true; // We don't use a guard for this because a previous disposal may have completed with only partial success.
+			_account = null;
+
+			_isDisposed = true;
 		}
 
 		/// <summary>
@@ -88,7 +97,24 @@ namespace DD.CBU.Compute.Api.Client
 		}
 
 		#endregion // Construction / disposal
-		
+
+		/// <summary>
+		///		Read-only information about the CaaS account targeted by the CaaS API client.
+		/// </summary>
+		/// <remarks>
+		///		<c>null</c>, unless logged in.
+		/// </remarks>
+		/// <seealso cref="LoginAsync"/>
+		public IAccount Account
+		{
+			get
+			{
+				CheckDisposed();
+
+				return _account;
+			}
+		}
+
 		/// <summary>
 		///		Is the API client currently logged in to the CaaS API?
 		/// </summary>
@@ -109,9 +135,9 @@ namespace DD.CBU.Compute.Api.Client
 		///		The CaaS account credentials used to authenticate against the CaaS API.
 		/// </param>
 		/// <returns>
-		///		A <see cref="Task"/> representing the asynchronous login operation.
+		///		An <see cref="IAccount"/> implementation representing the CaaS account that the client is logged into.
 		/// </returns>
-		public async Task LoginAsync(ICredentials accountCredentials)
+		public async Task<IAccount> LoginAsync(ICredentials accountCredentials)
 		{
 			if (accountCredentials == null)
 				throw new ArgumentNullException("accountCredentials");
@@ -124,10 +150,12 @@ namespace DD.CBU.Compute.Api.Client
 			_clientMessageHandler.Credentials = accountCredentials;
 			_clientMessageHandler.PreAuthenticate = true;
 
-			HttpResponseMessage response = await _httpClient.GetAsync("account");
+			HttpResponseMessage response = await _httpClient.GetAsync(ApiUrls.MyAccount);
 			response.EnsureSuccessStatusCode(); // TODO: Better error-handling.
 
-			_account = await response.Content.ReadAsAsync<Account>();
+			_account = await response.Content.XmlDeserializeAsync<Account>();
+
+			return _account;
 		}
 
 		/// <summary>

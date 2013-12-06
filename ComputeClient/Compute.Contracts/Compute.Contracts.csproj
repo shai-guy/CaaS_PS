@@ -52,6 +52,8 @@
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Directory\Account.cs" />
+    <Compile Include="Directory\IAccount.cs" />
+    <Compile Include="Directory\IRole.cs" />
     <Compile Include="Directory\Role.cs" />
     <Compile Include="General\Status.cs" />
     <Compile Include="XmlNamespaceConstants.cs" />

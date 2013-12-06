@@ -7,6 +7,7 @@ namespace DD.CBU.Compute.Api.Contracts.Directory
 	/// </summary>
 	[XmlRoot("Role", Namespace = XmlNamespaceConstants.Directory)]
 	public class Role
+		: IRole
 	{
 		/// <summary>
 		///		Create a new CaaS role data-contract.
