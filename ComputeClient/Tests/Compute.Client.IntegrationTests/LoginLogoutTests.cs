@@ -10,20 +10,20 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 	using Api.Contracts.Directory;
 
 	/// <summary>
-	///		Unit-tests for <see cref="Account"/>-related CaaS API functionality.
+	///		Integration tests for the CaaS  <see cref="ComputeApiClient.LoginAsync">login</see> / <see cref="ComputeApiClient.Logout">logout</see> functionality.
 	/// </summary>
 	[TestClass]
-	public class AccountTests
+	public class LoginLogoutTests
 	{
 		/// <summary>
-		///		Create a new Account unit-test set.
+		///		Create a new Account Integration-test set.
 		/// </summary>
-		public AccountTests()
+		public LoginLogoutTests()
 		{	
 		}
 
 		/// <summary>
-		///		The unit-test execution context.
+		///		The Integration-test execution context.
 		/// </summary>
 		public TestContext TestContext
 		{
@@ -52,6 +52,35 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 				TestContext.WriteLine("Account organisation Id: '{0}", account.OrganizationId);
 				TestContext.WriteLine("Account full name: '{0}'", account.FullName);
 				TestContext.WriteLine("Account email address: '{0}'", account.EmailAddress);
+			}
+		}
+
+		/// <summary>
+		///		Attempt to log in with valid credentials.
+		/// </summary>
+		/// <returns>
+		///		A <see cref="Task"/> representing the asynchronous unit-test execution.
+		/// </returns>
+		[TestMethod]
+		public async Task LoginWithInvalidCredentials()
+		{
+			ICredentials credentials = new NetworkCredential(
+				userName: "dd_cbu_obviously_invalid_credentials",
+				password: "CaaS Powershell integration test"
+			);
+			using (ComputeApiClient computeApiClient = new ComputeApiClient("au"))
+			{
+				try
+				{
+					await computeApiClient.LoginAsync(credentials);
+					
+					Assert.Fail("LoginAsync with invalid credentials failed to raise a ComputeApiException.");
+				}
+				catch (ComputeApiException eInvalidCredentials)
+				{
+					if (eInvalidCredentials.Error != ComputeApiError.InvalidCredentials)
+						throw;
+				}
 			}
 		}
 

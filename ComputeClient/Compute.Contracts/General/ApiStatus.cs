@@ -6,12 +6,12 @@ namespace DD.CBU.Compute.Api.Contracts.General
 	///		Represents a generic response to a CaaS API call.
 	/// </summary>
 	[XmlRoot("Status", Namespace = XmlNamespaceConstants.General)]
-	public class Status
+	public class ApiStatus
 	{
 		/// <summary>
 		///		Create a generic CaaS response data-contract.
 		/// </summary>
-		public Status()
+		public ApiStatus()
 		{
 		}
 

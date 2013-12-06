@@ -55,7 +55,7 @@
     <Compile Include="Directory\IAccount.cs" />
     <Compile Include="Directory\IRole.cs" />
     <Compile Include="Directory\Role.cs" />
-    <Compile Include="General\Status.cs" />
+    <Compile Include="General\ApiStatus.cs" />
     <Compile Include="XmlNamespaceConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace DD.CBU.Compute.Api.Client
 {
 	using Contracts.Directory;
+	using Contracts.General;
 
 	/// <summary>
 	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
@@ -145,12 +146,19 @@ namespace DD.CBU.Compute.Api.Client
 			CheckDisposed();
 
 			if (_account != null)
-				throw ComputeApiException.AlreadyLoggedIn();
+				throw ComputeApiClientException.AlreadyLoggedIn();
 
 			_clientMessageHandler.Credentials = accountCredentials;
 			_clientMessageHandler.PreAuthenticate = true;
 
-			_account = await ApiGetAsync<Account>(ApiUris.MyAccount);
+			try
+			{
+				_account = await ApiGetAsync<Account>(ApiUris.MyAccount);
+			}
+			catch (HttpRequestException eRequestFailure)
+			{
+				Debug.WriteLine(eRequestFailure.GetBaseException(), "BASE EXCEPTION");
+			}
 			Debug.Assert(_account != null, "_account != null");
 			
 			return _account;
@@ -164,7 +172,7 @@ namespace DD.CBU.Compute.Api.Client
 			CheckDisposed();
 
 			if (_account == null)
-				throw ComputeApiException.NotLoggedIn();
+				throw ComputeApiClientException.NotLoggedIn();
 
 			_account = null;
 			_clientMessageHandler.Credentials = null;
@@ -197,9 +205,35 @@ namespace DD.CBU.Compute.Api.Client
 
 			using (HttpResponseMessage response = await _httpClient.GetAsync(relativeOperationUri))
 			{
-				response.EnsureSuccessStatusCode(); // TODO: Better error-handling.
+				if (response.IsSuccessStatusCode)
+					return await response.Content.XmlDeserializeAsync<TResult>();
 
-				return await response.Content.XmlDeserializeAsync<TResult>();
+				switch (response.StatusCode)
+				{
+					case HttpStatusCode.Unauthorized:
+					{
+						throw ComputeApiException.InvalidCredentials(
+							(
+								(NetworkCredential)_clientMessageHandler.Credentials
+							)
+							.UserName
+						);
+					}
+					default:
+					{
+						throw new HttpRequestException(
+							String.Format(
+								"CaaS API returned HTTP status code {0} ({1}) when performing HTTP GET on '{2}'.",
+								(int)response.StatusCode,
+								response.StatusCode,
+								new Uri(
+									_httpClient.BaseAddress,
+									relativeOperationUri
+								)
+							)
+						);
+					}
+				}
 			}
 		}
 

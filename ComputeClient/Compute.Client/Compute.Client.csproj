@@ -57,9 +57,13 @@
     <Compile Include="..\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ApiClientException.cs" />
     <Compile Include="ApiUris.cs" />
+    <Compile Include="ClientError.cs" />
     <Compile Include="ComputeApiClient.cs" />
+    <Compile Include="ComputeApiClientException.cs" />
     <Compile Include="ComputeApiException.cs" />
+    <Compile Include="ComputeApiError.cs" />
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

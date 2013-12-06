@@ -4,22 +4,37 @@ using System.Runtime.Serialization;
 
 namespace DD.CBU.Compute.Api.Client
 {
+	using Contracts.General;
+
 	/// <summary>
-	///		Exception raised by the CaaS API client when it encounters an error.
+	///		Exception raised by the CaaS API client when it encounters an error response from the CaaS API.
 	/// </summary>
 	public class ComputeApiException
-		: Exception
+		: ApiClientException
 	{
+		/// <summary>
+		///		The default additional detail message used if there is no additional error detail available.
+		/// </summary>
+		public const string			DefaultAdditionalErrorDetailMessage = "No additional information is available.";
+
 		/// <summary>
 		///		The reason that the <see cref="ComputeApiException"/> was raised.
 		/// </summary>
-		readonly ClientError _reason;
+		readonly ComputeApiError	_error;
+
+		/// <summary>
+		///		Additional error detail (if any) provided by the CaaS API.
+		/// </summary>
+		readonly string				_additionalDetail;
 
 		/// <summary>
 		///		Create a new <see cref="ComputeApiException"/>.
 		/// </summary>
-		/// <param name="reason">
+		/// <param name="error">
 		///		The reason that the exception is being raised.
+		/// </param>
+		/// <param name="additionalDetail">
+		///		Additional error detail (if any) provided by the CaaS API.
 		/// </param>
 		/// <param name="messageOrFormat">
 		///		The exception message or message format.
@@ -27,20 +42,28 @@ namespace DD.CBU.Compute.Api.Client
 		/// <param name="formatArguments">
 		///		Optional message format arguments.
 		/// </param>
-		public ComputeApiException(ClientError reason, string messageOrFormat, params object[] formatArguments)
-			: base(String.Format(messageOrFormat, formatArguments))
+		public ComputeApiException(ComputeApiError error, string additionalDetail, string messageOrFormat, params object[] formatArguments)
+			: base(messageOrFormat, formatArguments)
 		{
-			Debug.Assert(reason != ClientError.Unknown, "Reason.Unknown should not be used here.");
-			Debug.Assert(String.IsNullOrWhiteSpace(messageOrFormat), "Exception message should not be empty.");
+			Debug.Assert(error != ComputeApiError.Unknown, "Reason.Unknown should not be used here.");
+			Debug.Assert(!String.IsNullOrWhiteSpace(messageOrFormat), "Exception message should not be empty.");
 
-			_reason = reason;
+			_error = error;
+			_additionalDetail =
+				!String.IsNullOrWhiteSpace(additionalDetail) ?
+					additionalDetail
+					:
+					DefaultAdditionalErrorDetailMessage;
 		}
 
 		/// <summary>
 		///		Create a new <see cref="ComputeApiException"/>.
 		/// </summary>
-		/// <param name="reason">
+		/// <param name="error">
 		///		The reason that the exception is being raised.
+		/// </param>
+		/// <param name="additionalDetail">
+		///		Additional error detail (if any) provided by the CaaS API.
 		/// </param>
 		/// <param name="messageOrFormat">
 		///		The exception message or message format.
@@ -51,13 +74,18 @@ namespace DD.CBU.Compute.Api.Client
 		/// <param name="formatArguments">
 		///		Optional message format arguments.
 		/// </param>
-		public ComputeApiException(ClientError reason, string messageOrFormat, Exception innerException, params object[] formatArguments)
-			: base(String.Format(messageOrFormat, formatArguments), innerException)
+		public ComputeApiException(ComputeApiError error, string additionalDetail, string messageOrFormat, Exception innerException, params object[] formatArguments)
+			: base(messageOrFormat, innerException, formatArguments)
 		{
-			Debug.Assert(reason != ClientError.Unknown, "Reason.Unknown should not be used here.");
-			Debug.Assert(String.IsNullOrWhiteSpace(messageOrFormat), "Exception message should not be empty.");
+			Debug.Assert(error != ComputeApiError.Unknown, "Reason.Unknown should not be used here.");
+			Debug.Assert(!String.IsNullOrWhiteSpace(messageOrFormat), "Exception message should not be empty.");
 
-			_reason = reason;
+			_error = error;
+			_additionalDetail =
+				!String.IsNullOrWhiteSpace(additionalDetail) ?
+					additionalDetail
+					:
+					DefaultAdditionalErrorDetailMessage;
 		}
 
 		/// <summary>
@@ -81,17 +109,40 @@ namespace DD.CBU.Compute.Api.Client
 			if (info == null)
 				throw new ArgumentNullException("info");
 
-			_reason = (ClientError)info.GetValue("_reason", typeof(ClientError));
+			_error = (ComputeApiError)info.GetValue("_error", typeof(ComputeApiError));
+			_additionalDetail = info.GetString("_additionalDetail");
 		}
 
 		/// <summary>
 		///		The reason that the <see cref="ComputeApiException"/> was raised.
 		/// </summary>
-		public ClientError Reason
+		public ComputeApiError Error
 		{
 			get
 			{
-				return _reason;
+				return _error;
+			}
+		}
+
+		/// <summary>
+		///		Does the exception include additional error details from the CaaS API?
+		/// </summary>
+		public bool HaveAdditionalDetail
+		{
+			get
+			{
+				return _additionalDetail != DefaultAdditionalErrorDetailMessage;
+			}
+		}
+
+		/// <summary>
+		///		Additional error detail (if any) provided by the CaaS API.
+		/// </summary>
+		public string AdditionalDetail
+		{
+			get
+			{
+				return _additionalDetail;
 			}
 		}
 
@@ -115,75 +166,32 @@ namespace DD.CBU.Compute.Api.Client
 			if (info == null)
 				throw new ArgumentNullException("info");
 
-			info.AddValue("_reason", _reason);
+			info.AddValue("_error", _error);
+			info.AddValue("_additionalDetail", _additionalDetail);
 
 			base.GetObjectData(info, context);
 		}
-
-		#region Reason enum
-
-		/// <summary>
-		///		Represents the reason that a <see cref="ComputeApiException"/> was raised.
-		/// </summary>
-		public enum ClientError
-		{
-			/// <summary>
-			///		An unknown reason.
-			/// </summary>
-			/// <remarks>
-			///		Used to detect uninitialised values; do not use directly.
-			/// </remarks>
-			Unknown = 0,
-
-			/// <summary>
-			///		The client has not logged into the CaaS API.
-			/// </summary>
-			/// <remarks>
-			///		Call <see cref="ComputeApiClient.LoginAsync"/> before calling other operations.
-			/// </remarks>
-			NotLoggedIn		= 1,
-
-			/// <summary>
-			///		The client is already logged into the CaaS API.
-			/// </summary>
-			/// <remarks>
-			///		To log in with different credentials than those currently used by the client, first call <see cref="ComputeApiClient.Logout"/> before calling <see cref="ComputeApiClient.LoginAsync"/>.
-			/// </remarks>
-			AlreadyLoggedIn	= 2
-		}
-
-		#endregion // Reason enum
-
+		
 		#region Factory methods
 
 		/// <summary>
-		///		Create a <see cref="ComputeApiException"/> to be raised because the client is not currently logged into the CaaS API.
+		///		Create a <see cref="ComputeApiException"/> to be raised because the CaaS API indicates that the supplied credentials are invalid..
 		/// </summary>
+		/// <param name="loginName">
+		///		The login name that the API indicates is invalid.
+		/// </param>
 		/// <returns>
 		///		The configured <see cref="ComputeApiException"/>.
 		/// </returns>
-		public static ComputeApiException NotLoggedIn()
+		public static ComputeApiException InvalidCredentials(string loginName)
 		{
 			return new ComputeApiException(
-				ClientError.NotLoggedIn,
-				"The client is not currently logged into the CaaS API (call LoginAsync, first)."
+				ComputeApiError.InvalidCredentials,
+				String.Format("The supplied login / password for '{0}' is not valid.", loginName),
+				"The supplied credentials are not valid."
 			);
 		}
-
-		/// <summary>
-		///		Create a <see cref="ComputeApiException"/> to be raised because the client is already logged into the CaaS API.
-		/// </summary>
-		/// <returns>
-		///		The configured <see cref="ComputeApiException"/>.
-		/// </returns>
-		public static ComputeApiException AlreadyLoggedIn()
-		{
-			return new ComputeApiException(
-				ClientError.AlreadyLoggedIn,
-				"The client is already logged into the CaaS API (call Logout, first)."
-			);
-		}
-
+		
 		#endregion // Factory methods
 	}
 }
