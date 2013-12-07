@@ -4,11 +4,10 @@ using System.Runtime.Serialization;
 
 namespace DD.CBU.Compute.Api.Client
 {
-	using Contracts.General;
-
 	/// <summary>
 	///		Exception raised by the CaaS API client when it encounters an error response from the CaaS API.
 	/// </summary>
+	[Serializable]
 	public class ComputeApiException
 		: ApiClientException
 	{

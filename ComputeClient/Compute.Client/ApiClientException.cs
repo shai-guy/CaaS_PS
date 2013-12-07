@@ -7,6 +7,7 @@ namespace DD.CBU.Compute.Api.Client
 	/// <summary>
 	///		The base class for API client exceptions.
 	/// </summary>
+	[Serializable]
 	public abstract class ApiClientException
 		: Exception
 	{

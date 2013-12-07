@@ -51,6 +51,13 @@
     <Compile Include="..\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Datacenter\DatacenterWithDiskSpeedDetail.cs" />
+    <Compile Include="Datacenter\DatacenterSummary.cs" />
+    <Compile Include="Datacenter\DatacentersWithDiskSpeedDetails.cs" />
+    <Compile Include="Datacenter\DiskSpeedDetail.cs" />
+    <Compile Include="Datacenter\IDatacenterSummary.cs" />
+    <Compile Include="Datacenter\IDatacenterWithDiskSpeedDetail.cs" />
+    <Compile Include="Datacenter\IDiskSpeedDetail.cs" />
     <Compile Include="Directory\Account.cs" />
     <Compile Include="Directory\IAccount.cs" />
     <Compile Include="Directory\IRole.cs" />

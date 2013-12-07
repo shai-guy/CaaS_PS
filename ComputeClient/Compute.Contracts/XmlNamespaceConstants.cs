@@ -69,7 +69,7 @@ namespace DD.CBU.Compute.Api.Contracts
 		/// <summary>
 		///		The CaaS data centre XML namespace.
 		/// </summary>
-		public const string DataCenter = "http://oec.api.opsource.net/schemas/datacenter";
+		public const string Datacenter = "http://oec.api.opsource.net/schemas/datacenter";
 
 		/// <summary>
 		///		The CaaS directory XML namespace.

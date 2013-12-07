@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Api.Client
 {
+	using System.Net.Http.Formatting;
 	using Contracts.Directory;
 	using Contracts.General;
 
@@ -19,14 +20,19 @@ namespace DD.CBU.Compute.Api.Client
 		: IDisposable
 	{
 		/// <summary>
+		///		Media type formatters used to serialise and deserialise data contracts when communicating with the CaaS API.
+		/// </summary>
+		readonly MediaTypeFormatterCollection	_mediaTypeFormatters = new MediaTypeFormatterCollection();
+
+		/// <summary>
 		///		The <see cref="HttpMessageHandler"/> used to customise communications with the CaaS API.
 		/// </summary>
-		HttpClientHandler	_clientMessageHandler = new HttpClientHandler();
+		HttpClientHandler						_clientMessageHandler = new HttpClientHandler();
 
 		/// <summary>
 		///		The <see cref="HttpClient"/> used to communicate with the CaaS API.
 		/// </summary>
-		HttpClient			_httpClient;
+		HttpClient								_httpClient;
 
 		/// <summary>
 		///		The details for the CaaS account associated with the supplied credentials.
@@ -51,6 +57,7 @@ namespace DD.CBU.Compute.Api.Client
 			if (String.IsNullOrWhiteSpace(regionName))
 				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'regionName'.", "regionName");
 
+			_mediaTypeFormatters.XmlFormatter.UseXmlSerializer = true;
 			_httpClient = new HttpClient(_clientMessageHandler);
 			_httpClient.BaseAddress = new Uri(
 				String.Format(
@@ -206,7 +213,7 @@ namespace DD.CBU.Compute.Api.Client
 			using (HttpResponseMessage response = await _httpClient.GetAsync(relativeOperationUri))
 			{
 				if (response.IsSuccessStatusCode)
-					return await response.Content.XmlDeserializeAsync<TResult>();
+					return await response.Content.ReadAsAsync<TResult>(_mediaTypeFormatters);
 
 				switch (response.StatusCode)
 				{

@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace DD.CBU.Compute.Api.Client
 {
-	using System.IO;
-	using System.Text;
-
 	/// <summary>
 	///		Exception raised by the CaaS API client when it encounters an error.
 	/// </summary>
+	[Serializable]
 	public class ComputeApiClientException
 		: ApiClientException
 	{
