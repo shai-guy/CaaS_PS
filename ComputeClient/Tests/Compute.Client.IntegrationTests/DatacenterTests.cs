@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Client.IntegrationTests
 {
+	using System.Collections.Generic;
+	using System.Diagnostics;
 	using Api.Client;
+	using Api.Contracts.Datacenter;
 	using Api.Contracts.Directory;
 
 	/// <summary>
-	///		Integration tests for the CaaS  <see cref="ComputeApiClient.LoginAsync">login</see> / <see cref="ComputeApiClient.Logout">logout</see> functionality.
+	///		Integration tests for the CaaS API client's functionality relating to data centres.
 	/// </summary>
 	[TestClass]
-	public class LoginLogoutTests
+	public class DatacenterTests
 	{
 		/// <summary>
-		///		Create a new Account Integration-test set.
+		///		Create a new API client data centre Integration-test set.
 		/// </summary>
-		public LoginLogoutTests()
+		public DatacenterTests()
 		{	
 		}
 
@@ -32,13 +35,13 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 		}
 
 		/// <summary>
-		///		Attempt to log in with valid credentials.
+		///		Get all data centres with disk speed details.
 		/// </summary>
 		/// <returns>
 		///		A <see cref="Task"/> representing the asynchronous unit-test execution.
 		/// </returns>
 		[TestMethod]
-		public async Task LoginWithValidCredentials()
+		public async Task GetAllDataCentersWithDiskSpeedDetails()
 		{
 			ICredentials credentials = GetIntegrationTestCredentials();
 			using (ComputeApiClient computeApiClient = new ComputeApiClient("au"))
@@ -47,11 +50,17 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 					computeApiClient
 						.LoginAsync(credentials);
 				Assert.IsNotNull(account);
-				Assert.IsNotNull(computeApiClient.Account);
 
-				TestContext.WriteLine("Account organisation Id: '{0}", account.OrganizationId);
-				TestContext.WriteLine("Account full name: '{0}'", account.FullName);
-				TestContext.WriteLine("Account email address: '{0}'", account.EmailAddress);
+				Guid organizationId = account.OrganizationId;
+				Assert.AreNotEqual(Guid.Empty, organizationId);
+
+				IReadOnlyList<IDatacenterWithDiskSpeedDetail> dataCenters =
+					await computeApiClient
+						.GetDataCentersWithDiskSpeedDetailAsync(organizationId);
+
+				Assert.AreNotEqual(0, dataCenters.Count);
+				foreach (IDatacenterWithDiskSpeedDetail dataCenter in dataCenters)
+					TestContext.WriteLine("{0}:{1} ({2})", dataCenter.LocationCode, dataCenter.DisplayName, dataCenter.Country);
 			}
 		}
 

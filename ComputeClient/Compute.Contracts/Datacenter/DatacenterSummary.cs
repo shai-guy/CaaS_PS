@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace DD.CBU.Compute.Api.Contracts.Datacenter
@@ -20,7 +20,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		Is the data centre the default data centre for the caller's organisation?
 		/// </summary>
-		[XmlAttribute("default")]
+		[XmlAttribute("default", Form = XmlSchemaForm.Qualified)]
 		public bool IsDefault
 		{
 			get;
@@ -30,7 +30,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		The short location code used as a key to identity the data centre.
 		/// </summary>
-		[XmlAttribute("location")]
+		[XmlAttribute("location", Form = XmlSchemaForm.Qualified)]
 		public string LocationCode
 		{
 			get;

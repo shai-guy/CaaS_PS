@@ -2,6 +2,8 @@
 
 namespace DD.CBU.Compute.Api.Client
 {
+	using Contracts.Datacenter;
+
 	/// <summary>
 	///		Constants and formatters for API URLs.
 	/// </summary>
@@ -31,6 +33,26 @@ namespace DD.CBU.Compute.Api.Client
 					"https://api-{0}.dimensiondata.com/oec/0.9/",
 					regionCode
 				)
+			);
+		}
+
+		/// <summary>
+		///		Get the relative URI for the CaaS API action that retrieves a list of all data centres available for use by the specified organisation.
+		/// </summary>
+		/// <param name="organizationId">
+		///		The organisation Id.
+		/// </param>
+		/// <returns>
+		///		The relative action Uri.
+		/// </returns>
+		public static Uri DatacentersWithDiskSpeedDetails(Guid organizationId)
+		{
+			if (organizationId == Guid.Empty)
+				throw new ArgumentException("GUID cannot be empty: 'organizationId'.", "organizationId");
+
+			return new Uri(
+				String.Format("{0}/datacenterWithDiskSpeed", organizationId),
+				UriKind.Relative
 			);
 		}
 	}

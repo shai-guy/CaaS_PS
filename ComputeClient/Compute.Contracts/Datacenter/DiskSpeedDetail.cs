@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace DD.CBU.Compute.Api.Contracts.Datacenter
 {
@@ -18,7 +19,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		Is the disk speed available at the parent data centre?
 		/// </summary>
-		[XmlAttribute("available")]
+		[XmlAttribute("available", Form = XmlSchemaForm.Qualified)]
 		public bool IsAvailable
 		{
 			get;
@@ -28,7 +29,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		Is the disk speed the default disk speed at the parent data centre?
 		/// </summary>
-		[XmlAttribute("default")]
+		[XmlAttribute("default", Form = XmlSchemaForm.Qualified)]
 		public bool IsDefault
 		{
 			get;
@@ -38,7 +39,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		The disk speed Id.
 		/// </summary>
-		[XmlAttribute("id")]
+		[XmlAttribute("id", Form = XmlSchemaForm.Qualified)]
 		public string Id
 		{
 			get;

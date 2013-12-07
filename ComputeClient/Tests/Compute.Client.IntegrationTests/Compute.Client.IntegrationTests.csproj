@@ -63,7 +63,8 @@
     <Compile Include="..\..\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="LoginLogoutTests.cs" />
+    <Compile Include="DatacenterTests.cs" />
+    <Compile Include="AccountTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

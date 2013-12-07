@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Api.Client
 {
+	using System.Collections.Generic;
 	using System.Net.Http.Formatting;
+	using Contracts.Datacenter;
 	using Contracts.Directory;
 	using Contracts.General;
 
@@ -19,30 +21,35 @@ namespace DD.CBU.Compute.Api.Client
     public sealed class ComputeApiClient
 		: IDisposable
 	{
+		#region Instance data
+
 		/// <summary>
 		///		Media type formatters used to serialise and deserialise data contracts when communicating with the CaaS API.
 		/// </summary>
-		readonly MediaTypeFormatterCollection	_mediaTypeFormatters = new MediaTypeFormatterCollection();
+		readonly MediaTypeFormatterCollection _mediaTypeFormatters = new MediaTypeFormatterCollection();
 
 		/// <summary>
 		///		The <see cref="HttpMessageHandler"/> used to customise communications with the CaaS API.
 		/// </summary>
-		HttpClientHandler						_clientMessageHandler = new HttpClientHandler();
+		HttpClientHandler _clientMessageHandler = new HttpClientHandler();
 
 		/// <summary>
 		///		The <see cref="HttpClient"/> used to communicate with the CaaS API.
 		/// </summary>
-		HttpClient								_httpClient;
+		HttpClient _httpClient;
 
 		/// <summary>
 		///		The details for the CaaS account associated with the supplied credentials.
 		/// </summary>
-		Account				_account;
+		Account _account;
 
 		/// <summary>
 		///		Has the client been disposed?
 		/// </summary>
-		bool				_isDisposed;
+		bool _isDisposed;
+
+		#endregion // Instance data
+
 
 		#region Construction / disposal
 
@@ -106,6 +113,8 @@ namespace DD.CBU.Compute.Api.Client
 
 		#endregion // Construction / disposal
 
+		#region Public properties
+
 		/// <summary>
 		///		Read-only information about the CaaS account targeted by the CaaS API client.
 		/// </summary>
@@ -135,6 +144,10 @@ namespace DD.CBU.Compute.Api.Client
 				return _account != null;
 			}
 		}
+
+		#endregion // Public properties
+
+		#region Public methods
 
 		/// <summary>
 		///		Asynchronously log into the CaaS API.
@@ -167,7 +180,7 @@ namespace DD.CBU.Compute.Api.Client
 				Debug.WriteLine(eRequestFailure.GetBaseException(), "BASE EXCEPTION");
 			}
 			Debug.Assert(_account != null, "_account != null");
-			
+
 			return _account;
 		}
 
@@ -185,6 +198,31 @@ namespace DD.CBU.Compute.Api.Client
 			_clientMessageHandler.Credentials = null;
 			_clientMessageHandler.PreAuthenticate = false;
 		}
+
+		/// <summary>
+		///		Asynchronously get a list of all CaaS data centres (with disk speed details) that are available for use by the specified organisation.
+		/// </summary>
+		/// <param name="organizationId">
+		///		The organisation Id.
+		/// </param>
+		/// <returns>
+		///		A read-only list of <see cref="IDatacenterWithDiskSpeedDetail"/>s representing the data centre information.
+		/// </returns>
+		public async Task<IReadOnlyList<IDatacenterWithDiskSpeedDetail>> GetDataCentersWithDiskSpeedDetailAsync(Guid organizationId)
+		{
+			CheckDisposed();
+
+			DatacentersWithDiskSpeedDetails datacentersWithDiskSpeedDetails =
+				await ApiGetAsync<DatacentersWithDiskSpeedDetails>(
+					ApiUris.DatacentersWithDiskSpeedDetails(
+						organizationId
+					)
+				);
+
+			return datacentersWithDiskSpeedDetails.Datacenters;
+		}
+
+		#endregion // Public methods
 
 		#region WebAPI invocation
 
