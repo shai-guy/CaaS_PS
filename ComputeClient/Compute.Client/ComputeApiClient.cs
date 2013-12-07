@@ -1,23 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Api.Client
-{
-	using System.Collections.Generic;
-	using System.Net.Http.Formatting;
+{	
 	using Contracts.Datacenter;
 	using Contracts.Directory;
-	using Contracts.General;
 
 	/// <summary>
 	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
 	/// </summary>
-	/// <remarks>
-	///		This client is async but, from a concurrency perspective, it not thread-safe.
-	/// </remarks>
     public sealed class ComputeApiClient
 		: IDisposable
 	{
@@ -49,8 +45,7 @@ namespace DD.CBU.Compute.Api.Client
 		bool _isDisposed;
 
 		#endregion // Instance data
-
-
+		
 		#region Construction / disposal
 
 		/// <summary>
@@ -208,7 +203,7 @@ namespace DD.CBU.Compute.Api.Client
 		/// <returns>
 		///		A read-only list of <see cref="IDatacenterWithDiskSpeedDetail"/>s representing the data centre information.
 		/// </returns>
-		public async Task<IReadOnlyList<IDatacenterWithDiskSpeedDetail>> GetDataCentersWithDiskSpeedDetailAsync(Guid organizationId)
+		public async Task<IReadOnlyList<DatacenterWithDiskSpeedDetail>> GetDataCentersWithDiskSpeedDetailAsync(Guid organizationId)
 		{
 			CheckDisposed();
 
