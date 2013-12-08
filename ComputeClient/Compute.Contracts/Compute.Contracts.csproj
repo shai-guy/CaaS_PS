@@ -63,6 +63,12 @@
     <Compile Include="Directory\IRole.cs" />
     <Compile Include="Directory\Role.cs" />
     <Compile Include="General\ApiStatus.cs" />
+    <Compile Include="Server\CustomImageWithSoftwareLabels.cs" />
+    <Compile Include="Server\ImagesWithSoftwareLabels.cs" />
+    <Compile Include="Server\ImageWithSoftwareLabels.cs" />
+    <Compile Include="Server\MachineSpecification.cs" />
+    <Compile Include="Server\OperatingSystem.cs" />
+    <Compile Include="Server\OperatingSystemType.cs" />
     <Compile Include="XmlNamespaceConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

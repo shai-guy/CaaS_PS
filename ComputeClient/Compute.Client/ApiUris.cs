@@ -17,21 +17,21 @@ namespace DD.CBU.Compute.Api.Client
 		/// <summary>
 		///		Get the base URI for the CaaS REST API.
 		/// </summary>
-		/// <param name="regionCode">
-		///		The region's short name ("au", for example).
+		/// <param name="targetLocationName">
+		///		The target location's short name ("au", for example).
 		/// </param>
 		/// <returns>
 		///		The base URI for the CaaS REST API.
 		/// </returns>
-		public static Uri ComputeBase(string regionCode)
+		public static Uri ComputeBase(string targetLocationName)
 		{
-			if (String.IsNullOrWhiteSpace(regionCode))
-				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'regionCode'.", "regionCode");
+			if (String.IsNullOrWhiteSpace(targetLocationName))
+				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetLocationName'.", "targetLocationName");
 
 			return new Uri(
 				String.Format(
 					"https://api-{0}.dimensiondata.com/oec/0.9/",
-					regionCode
+					targetLocationName
 				)
 			);
 		}

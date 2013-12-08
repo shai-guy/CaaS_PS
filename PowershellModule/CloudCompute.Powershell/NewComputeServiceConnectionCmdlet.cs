@@ -25,6 +25,16 @@ namespace DD.CBU.Compute.Powershell
 		}
 
 		/// <summary>
+		///		The name of the region, to whose CaaS API, the connection should be created.
+		/// </summary>
+		[Parameter(Mandatory = true)]
+		public string RegionName
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
 		///		The credentials used to connect to the CaaS API.
 		/// </summary>
 		[Parameter(Mandatory = true, ValueFromPipeline = true)]

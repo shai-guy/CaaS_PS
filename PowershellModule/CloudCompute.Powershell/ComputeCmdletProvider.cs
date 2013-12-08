@@ -7,7 +7,6 @@ namespace DD.CBU.Compute.Powershell
 	/// </summary>
 	[CmdletProvider("ComputePowershellProvider", ProviderCapabilities.Credentials | ProviderCapabilities.ShouldProcess)]
 	public class ComputeCmdletProvider
-		: CmdletProvider
 	{
 		/// <summary>
 		/// 	Create a new CaaS Cmdlet provider.

@@ -51,22 +51,17 @@ namespace DD.CBU.Compute.Api.Client
 		/// <summary>
 		///		Create a new Compute-as-a-Service API client.
 		/// </summary>
-		/// <param name="regionName">
-		///		The name of the region whose CaaS API is targeted by the client.
+		/// <param name="targetLocationName">
+		///		The name of the location whose CaaS API is targeted by the client.
 		/// </param>
-		public ComputeApiClient(string regionName)
+		public ComputeApiClient(string targetLocationName)
 		{
-			if (String.IsNullOrWhiteSpace(regionName))
-				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'regionName'.", "regionName");
+			if (String.IsNullOrWhiteSpace(targetLocationName))
+				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetLocationName'.", "targetLocationName");
 
 			_mediaTypeFormatters.XmlFormatter.UseXmlSerializer = true;
 			_httpClient = new HttpClient(_clientMessageHandler);
-			_httpClient.BaseAddress = new Uri(
-				String.Format(
-					"https://api-{0}.dimensiondata.com/oec/0.9/",
-					regionName
-				)
-			);
+			_httpClient.BaseAddress = ApiUris.ComputeBase(targetLocationName);
 		}
 
 		/// <summary>
