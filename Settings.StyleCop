@@ -10,6 +10,7 @@
 			<Value>Deserialisation</Value>
 			<Value>Cmdlet</Value>
 			<Value>Powershell</Value>
+			<Value>Finaliser</Value>
 		</CollectionProperty>
 	</GlobalSettings>
 	<Parsers>

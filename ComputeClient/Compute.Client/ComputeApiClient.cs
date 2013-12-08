@@ -11,39 +11,35 @@ namespace DD.CBU.Compute.Api.Client
 	using Contracts.Datacenter;
 	using Contracts.Directory;
 	using Contracts.Server;
+	using Utilties;
 
 	/// <summary>
 	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
 	/// </summary>
     public sealed class ComputeApiClient
-		: IDisposable
+		: DisposableObject
 	{
 		#region Instance data
 
 		/// <summary>
 		///		Media type formatters used to serialise and deserialise data contracts when communicating with the CaaS API.
 		/// </summary>
-		readonly MediaTypeFormatterCollection _mediaTypeFormatters = new MediaTypeFormatterCollection();
+		readonly MediaTypeFormatterCollection	_mediaTypeFormatters = new MediaTypeFormatterCollection();
 
 		/// <summary>
 		///		The <see cref="HttpMessageHandler"/> used to customise communications with the CaaS API.
 		/// </summary>
-		HttpClientHandler _clientMessageHandler = new HttpClientHandler();
+		HttpClientHandler						_clientMessageHandler = new HttpClientHandler();
 
 		/// <summary>
 		///		The <see cref="HttpClient"/> used to communicate with the CaaS API.
 		/// </summary>
-		HttpClient _httpClient;
+		HttpClient								_httpClient;
 
 		/// <summary>
 		///		The details for the CaaS account associated with the supplied credentials.
 		/// </summary>
-		Account _account;
-
-		/// <summary>
-		///		Has the client been disposed?
-		/// </summary>
-		bool _isDisposed;
+		Account									_account;
 
 		#endregion // Instance data
 		
@@ -66,40 +62,29 @@ namespace DD.CBU.Compute.Api.Client
 		}
 
 		/// <summary>
-		///		Dispose of resources being used by the CaaS client.
+		///		Dispose of resources being used by the CaaS API client.
 		/// </summary>
-		public void Dispose()
+		/// <param name="disposing">
+		///		Explicit disposal?
+		/// </param>
+		protected override void Dispose(bool disposing)
 		{
-			if (_isDisposed)
-				return;
-
-			if (_clientMessageHandler != null)
+			if (disposing)
 			{
-				_clientMessageHandler.Dispose();
-				_clientMessageHandler = null;
+				if (_clientMessageHandler != null)
+				{
+					_clientMessageHandler.Dispose();
+					_clientMessageHandler = null;
+				}
+
+				if (_httpClient != null)
+				{
+					_httpClient.Dispose();
+					_httpClient = null;
+				}
+
+				_account = null;
 			}
-
-			if (_httpClient != null)
-			{
-				_httpClient.Dispose();
-				_httpClient = null;
-			}
-
-			_account = null;
-
-			_isDisposed = true;
-		}
-
-		/// <summary>
-		///		Check if the client has been disposed.
-		/// </summary>
-		/// <exception cref="ObjectDisposedException">
-		///		The client has been disposed.
-		/// </exception>
-		void CheckDisposed()
-		{
-			if (_isDisposed)
-				throw new ObjectDisposedException(GetType().Name);
 		}
 
 		#endregion // Construction / disposal
