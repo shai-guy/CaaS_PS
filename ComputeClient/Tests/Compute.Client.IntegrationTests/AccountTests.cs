@@ -93,7 +93,7 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 		/// <remarks>
 		///		Since this is an open-source project, I can't really supply valid credentials as part of the source code (so we just get them from the registry).
 		/// </remarks>
-		static ICredentials GetIntegrationTestCredentials()
+		public static ICredentials GetIntegrationTestCredentials()
 		{
 			const string credentialsKeyName = @"Software\Dimension Data\Cloud\API Client\Credentials\Test1";
 			using (RegistryKey credentialsKey = Registry.CurrentUser.OpenSubKey(credentialsKeyName))

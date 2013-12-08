@@ -10,6 +10,7 @@ namespace DD.CBU.Compute.Api.Client
 {	
 	using Contracts.Datacenter;
 	using Contracts.Directory;
+	using Contracts.Server;
 
 	/// <summary>
 	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
@@ -51,17 +52,17 @@ namespace DD.CBU.Compute.Api.Client
 		/// <summary>
 		///		Create a new Compute-as-a-Service API client.
 		/// </summary>
-		/// <param name="targetLocationName">
-		///		The name of the location whose CaaS API is targeted by the client.
+		/// <param name="targetRegionName">
+		///		The name of the region whose CaaS API end-point is targeted by the client.
 		/// </param>
-		public ComputeApiClient(string targetLocationName)
+		public ComputeApiClient(string targetRegionName)
 		{
-			if (String.IsNullOrWhiteSpace(targetLocationName))
-				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetLocationName'.", "targetLocationName");
+			if (String.IsNullOrWhiteSpace(targetRegionName))
+				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetRegionName'.", "targetRegionName");
 
 			_mediaTypeFormatters.XmlFormatter.UseXmlSerializer = true;
 			_httpClient = new HttpClient(_clientMessageHandler);
-			_httpClient.BaseAddress = ApiUris.ComputeBase(targetLocationName);
+			_httpClient.BaseAddress = ApiUris.ComputeBase(targetRegionName);
 		}
 
 		/// <summary>
@@ -168,6 +169,8 @@ namespace DD.CBU.Compute.Api.Client
 			catch (HttpRequestException eRequestFailure)
 			{
 				Debug.WriteLine(eRequestFailure.GetBaseException(), "BASE EXCEPTION");
+
+				throw;
 			}
 			Debug.Assert(_account != null, "_account != null");
 
@@ -210,6 +213,28 @@ namespace DD.CBU.Compute.Api.Client
 				);
 
 			return datacentersWithDiskSpeedDetails.Datacenters;
+		}
+
+		/// <summary>
+		///		Get a list of all system-defined images (with software labels) deployed in the specified data centre.
+		/// </summary>
+		/// <param name="locationName">
+		///		The short name of the location in which the data centre is located.
+		/// </param>
+		/// <returns>
+		///		A read-only list <see cref="ImageWithSoftwareLabels"/>, sorted by UTC creation date / time, representing the images.
+		/// </returns>
+		public async Task<IReadOnlyList<ImageWithSoftwareLabels>> GetImages(string locationName)
+		{
+			if (String.IsNullOrWhiteSpace(locationName))
+				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'locationName'.", "locationName");
+
+			ImagesWithSoftwareLabels imagesWithSoftwareLabels =
+				await ApiGetAsync<ImagesWithSoftwareLabels>(
+					ApiUris.ImagesWithSoftwareLabels(locationName)
+				);
+
+			return imagesWithSoftwareLabels.Images;
 		}
 
 		#endregion // Public methods

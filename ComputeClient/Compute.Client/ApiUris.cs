@@ -17,21 +17,21 @@ namespace DD.CBU.Compute.Api.Client
 		/// <summary>
 		///		Get the base URI for the CaaS REST API.
 		/// </summary>
-		/// <param name="targetLocationName">
-		///		The target location's short name ("au", for example).
+		/// <param name="targetRegionName">
+		///		The target region's short name ("au", for example).
 		/// </param>
 		/// <returns>
 		///		The base URI for the CaaS REST API.
 		/// </returns>
-		public static Uri ComputeBase(string targetLocationName)
+		public static Uri ComputeBase(string targetRegionName)
 		{
-			if (String.IsNullOrWhiteSpace(targetLocationName))
-				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetLocationName'.", "targetLocationName");
+			if (String.IsNullOrWhiteSpace(targetRegionName))
+				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetRegionName'.", "targetRegionName");
 
 			return new Uri(
 				String.Format(
 					"https://api-{0}.dimensiondata.com/oec/0.9/",
-					targetLocationName
+					targetRegionName.ToLower()
 				)
 			);
 		}
@@ -52,6 +52,29 @@ namespace DD.CBU.Compute.Api.Client
 
 			return new Uri(
 				String.Format("{0}/datacenterWithDiskSpeed", organizationId),
+				UriKind.Relative
+			);
+		}
+
+		/// <summary>
+		///		Get the relative URI for the CaaS API action that retrieves a list of all system-defined images deployed in the specified data centre.
+		/// </summary>
+		/// <param name="locationName">
+		///		The data centre location name.
+		/// </param>
+		/// <returns>
+		///		The relative action Uri.
+		/// </returns>
+		public static Uri ImagesWithSoftwareLabels(string locationName)
+		{
+			if (String.IsNullOrWhiteSpace(locationName))
+				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'locationName'.", "locationName");
+
+			return new Uri(
+				String.Format(
+					"base/image/deployedWithSoftwareLabels/{0}",
+					locationName
+				),
 				UriKind.Relative
 			);
 		}
