@@ -8,6 +8,8 @@
 			<Value>Caa</Value>
 			<Value>uninitialised</Value>
 			<Value>Deserialisation</Value>
+			<Value>Cmdlet</Value>
+			<Value>Powershell</Value>
 		</CollectionProperty>
 	</GlobalSettings>
 	<Parsers>
