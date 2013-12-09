@@ -5,7 +5,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 	/// <summary>
 	///		Provides read-only access to summary information about a CaaS data centre (with disk speed detail).
 	/// </summary>
-	public interface IDatacenterWithDiskSpeedDetail
+	public interface IDatacenterDetail
 		: IDatacenterSummary
 	{
 		/// <summary>

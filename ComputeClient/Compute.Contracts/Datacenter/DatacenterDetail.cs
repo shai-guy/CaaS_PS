@@ -7,8 +7,8 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 	///		Represents CaaS data centre with disk speed details.
 	/// </summary>
 	[XmlRoot("DatacenterWithDiskSpeedDetail", Namespace = XmlNamespaceConstants.Datacenter)]
-	public class DatacenterWithDiskSpeedDetail
-		: DatacenterSummary, IDatacenterWithDiskSpeedDetail
+	public class DatacenterDetail
+		: DatacenterSummary, IDatacenterDetail
 	{
 		/// <summary>
 		///		Detailed information about disk speeds available at the data centre.
@@ -16,9 +16,9 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		readonly List<DiskSpeedDetail> _diskSpeedDetails = new List<DiskSpeedDetail>();
 
 		/// <summary>
-		///		Create a new <see cref="DatacenterWithDiskSpeedDetail"/>.
+		///		Create a new <see cref="DatacenterDetail"/>.
 		/// </summary>
-		public DatacenterWithDiskSpeedDetail()
+		public DatacenterDetail()
 		{
 		}
 
@@ -37,7 +37,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		Detailed information about disk speeds available at the data centre.
 		/// </summary>
-		IReadOnlyList<IDiskSpeedDetail> IDatacenterWithDiskSpeedDetail.DiskSpeedDetails
+		IReadOnlyList<IDiskSpeedDetail> IDatacenterDetail.DiskSpeedDetails
 		{
 			get
 			{

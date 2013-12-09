@@ -4,15 +4,16 @@ using System.Xml.Serialization;
 namespace DD.CBU.Compute.Api.Contracts.Server
 {
 	/// <summary>
-	///		Represents information about a deployed CaaS image with labels for its included software.
+	///		Represents detailed information about a deployed CaaS image (with labels for its included software).
 	/// </summary>
 	[XmlRoot("DeployedImageWithSoftwareLabels", Namespace = XmlNamespaceConstants.Server)]
-	public class ImageWithSoftwareLabels
+	public class ImageDetail
+		: IImageDetail
 	{
 		/// <summary>
-		///		Create a new <see cref="ImageWithSoftwareLabels"/>.
+		///		Create a new <see cref="ImageDetail"/>.
 		/// </summary>
-		public ImageWithSoftwareLabels()
+		public ImageDetail()
 		{
 		}
 

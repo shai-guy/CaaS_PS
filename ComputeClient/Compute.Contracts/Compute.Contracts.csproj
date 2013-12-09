@@ -24,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\..\CaaS_PS.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\DD.CBU.Compute.Api.Contracts.xml</DocumentationFile>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -51,21 +52,25 @@
     <Compile Include="..\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Datacenter\DatacenterWithDiskSpeedDetail.cs" />
+    <Compile Include="Datacenter\DatacenterDetail.cs" />
     <Compile Include="Datacenter\DatacenterSummary.cs" />
     <Compile Include="Datacenter\DatacentersWithDiskSpeedDetails.cs" />
     <Compile Include="Datacenter\DiskSpeedDetail.cs" />
     <Compile Include="Datacenter\IDatacenterSummary.cs" />
-    <Compile Include="Datacenter\IDatacenterWithDiskSpeedDetail.cs" />
+    <Compile Include="Datacenter\IDatacenterDetail.cs" />
     <Compile Include="Datacenter\IDiskSpeedDetail.cs" />
     <Compile Include="Directory\Account.cs" />
     <Compile Include="Directory\IAccount.cs" />
     <Compile Include="Directory\IRole.cs" />
     <Compile Include="Directory\Role.cs" />
     <Compile Include="General\ApiStatus.cs" />
-    <Compile Include="Server\CustomImageWithSoftwareLabels.cs" />
+    <Compile Include="Server\CustomImageDetail.cs" />
+    <Compile Include="Server\ICustomImageDetail.cs" />
+    <Compile Include="Server\IImageDetail.cs" />
+    <Compile Include="Server\IMachineSpecification.cs" />
     <Compile Include="Server\ImagesWithSoftwareLabels.cs" />
-    <Compile Include="Server\ImageWithSoftwareLabels.cs" />
+    <Compile Include="Server\ImageDetail.cs" />
+    <Compile Include="Server\IOperatingSystem.cs" />
     <Compile Include="Server\MachineSpecification.cs" />
     <Compile Include="Server\OperatingSystem.cs" />
     <Compile Include="Server\OperatingSystemType.cs" />

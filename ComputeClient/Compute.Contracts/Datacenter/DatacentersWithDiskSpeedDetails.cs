@@ -12,7 +12,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		/// <summary>
 		///		The data centres.
 		/// </summary>
-		readonly List<DatacenterWithDiskSpeedDetail> _datacenters = new List<DatacenterWithDiskSpeedDetail>();
+		readonly List<DatacenterDetail> _datacenters = new List<DatacenterDetail>();
 
 		/// <summary>
 		///		Create a new <see cref="DatacentersWithDiskSpeedDetails"/> data contract.
@@ -25,7 +25,7 @@ namespace DD.CBU.Compute.Api.Contracts.Datacenter
 		///		The data centres (with disk speed details).
 		/// </summary>
 		[XmlElement("datacenter")]
-		public List<DatacenterWithDiskSpeedDetail> Datacenters
+		public List<DatacenterDetail> Datacenters
 		{
 			get
 			{

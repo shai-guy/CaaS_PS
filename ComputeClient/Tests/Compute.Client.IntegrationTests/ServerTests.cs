@@ -39,7 +39,7 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 		[TestMethod]
 		public async Task GetAllSystemImagesAU1()
 		{
-			IReadOnlyList<ImageWithSoftwareLabels> images;
+			IReadOnlyList<IImageDetail> images;
 			using (ComputeApiClient apiClient = new ComputeApiClient("AU"))
 			{
 				await apiClient.LoginAsync(
@@ -49,7 +49,7 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 				images = await apiClient.GetImages("AU1");
 			}
 
-			foreach (ImageWithSoftwareLabels image in images)
+			foreach (IImageDetail image in images)
 			{
 				TestContext.WriteLine(
 					"Image '{0}' (Id = '{1}') - '{2}' ({3})",
@@ -82,11 +82,11 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 					accountCredentials: AccountTests.GetIntegrationTestCredentials()
 				);
 
-				foreach (DatacenterSummary datacenter in await apiClient.GetDataCentersWithDiskSpeedDetailAsync(apiClient.Account.OrganizationId))
+				foreach (DatacenterSummary datacenter in await apiClient.GetAvailableDataCenters(apiClient.Account.OrganizationId))
 				{
 					TestContext.WriteLine("DataCenter '{0}' ({1}):", datacenter.LocationCode, datacenter.DisplayName);
 
-					foreach (ImageWithSoftwareLabels image in await apiClient.GetImages(datacenter.LocationCode))
+					foreach (ImageDetail image in await apiClient.GetImages(datacenter.LocationCode))
 					{
 						TestContext.WriteLine(
 							"\tImage '{0}' (Id = '{1}') - '{2}' ({3})",

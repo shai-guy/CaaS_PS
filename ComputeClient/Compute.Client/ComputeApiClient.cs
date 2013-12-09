@@ -11,7 +11,7 @@ namespace DD.CBU.Compute.Api.Client
 	using Contracts.Datacenter;
 	using Contracts.Directory;
 	using Contracts.Server;
-	using Utilties;
+	using Utilities;
 
 	/// <summary>
 	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
@@ -178,15 +178,15 @@ namespace DD.CBU.Compute.Api.Client
 		}
 
 		/// <summary>
-		///		Asynchronously get a list of all CaaS data centres (with disk speed details) that are available for use by the specified organisation.
+		///		Asynchronously get a list of all CaaS data centres that are available for use by the specified organisation.
 		/// </summary>
 		/// <param name="organizationId">
 		///		The organisation Id.
 		/// </param>
 		/// <returns>
-		///		A read-only list of <see cref="IDatacenterWithDiskSpeedDetail"/>s representing the data centre information.
+		///		A read-only list of <see cref="IDatacenterDetail"/>s representing the data centre information.
 		/// </returns>
-		public async Task<IReadOnlyList<DatacenterWithDiskSpeedDetail>> GetDataCentersWithDiskSpeedDetailAsync(Guid organizationId)
+		public async Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCenters(Guid organizationId)
 		{
 			CheckDisposed();
 
@@ -207,9 +207,9 @@ namespace DD.CBU.Compute.Api.Client
 		///		The short name of the location in which the data centre is located.
 		/// </param>
 		/// <returns>
-		///		A read-only list <see cref="ImageWithSoftwareLabels"/>, sorted by UTC creation date / time, representing the images.
+		///		A read-only list <see cref="ImageDetail"/>, sorted by UTC creation date / time, representing the images.
 		/// </returns>
-		public async Task<IReadOnlyList<ImageWithSoftwareLabels>> GetImages(string locationName)
+		public async Task<IReadOnlyList<IImageDetail>> GetImages(string locationName)
 		{
 			if (String.IsNullOrWhiteSpace(locationName))
 				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'locationName'.", "locationName");

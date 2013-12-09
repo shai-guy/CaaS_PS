@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Xml.Serialization;
 
 namespace DD.CBU.Compute.Api.Contracts.Server
 {
-	using System.Xml.Serialization;
-
 	/// <summary>
 	///		Represents a well-known operating system for CaaS virtual machines.
 	/// </summary>
 	public class OperatingSystem
+		: IOperatingSystem
 	{
 		/// <summary>
 		///		Create a new operating system.

@@ -7,6 +7,7 @@ namespace DD.CBU.Compute.Api.Contracts.Server
 	/// </summary>
 	[XmlRoot("MachineSpecification", Namespace = XmlNamespaceConstants.Server)]
 	public class MachineSpecification
+		: IMachineSpecification
 	{
 		/// <summary>
 		///		Create a new <see cref="MachineSpecification"/>.
@@ -63,6 +64,17 @@ namespace DD.CBU.Compute.Api.Contracts.Server
 		{
 			get;
 			set;
+		}
+
+		/// <summary>
+		///		Information about the machine's operating system.
+		/// </summary>
+		IOperatingSystem IMachineSpecification.OperatingSystem
+		{
+			get
+			{
+				return OperatingSystem;
+			}
 		}
 	}
 }

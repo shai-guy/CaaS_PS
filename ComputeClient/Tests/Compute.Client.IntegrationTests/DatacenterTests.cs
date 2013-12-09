@@ -1,13 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace DD.CBU.Compute.Client.IntegrationTests
 {
-	using System.Collections.Generic;
-	using System.Diagnostics;
 	using Api.Client;
 	using Api.Contracts.Datacenter;
 	using Api.Contracts.Directory;
@@ -35,13 +34,13 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 		}
 
 		/// <summary>
-		///		Get all data centres with disk speed details.
+		///		Get all data centres.
 		/// </summary>
 		/// <returns>
 		///		A <see cref="Task"/> representing the asynchronous unit-test execution.
 		/// </returns>
 		[TestMethod]
-		public async Task GetAllDataCentersWithDiskSpeedDetails()
+		public async Task GetAvailableDatacenters()
 		{
 			ICredentials credentials = GetIntegrationTestCredentials();
 			using (ComputeApiClient computeApiClient = new ComputeApiClient("au"))
@@ -54,42 +53,13 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 				Guid organizationId = account.OrganizationId;
 				Assert.AreNotEqual(Guid.Empty, organizationId);
 
-				IReadOnlyList<IDatacenterWithDiskSpeedDetail> dataCenters =
+				IReadOnlyList<IDatacenterDetail> dataCenters =
 					await computeApiClient
-						.GetDataCentersWithDiskSpeedDetailAsync(organizationId);
+						.GetAvailableDataCenters(organizationId);
 
 				Assert.AreNotEqual(0, dataCenters.Count);
-				foreach (IDatacenterWithDiskSpeedDetail dataCenter in dataCenters)
+				foreach (IDatacenterDetail dataCenter in dataCenters)
 					TestContext.WriteLine("{0}:{1} ({2})", dataCenter.LocationCode, dataCenter.DisplayName, dataCenter.Country);
-			}
-		}
-
-		/// <summary>
-		///		Attempt to log in with valid credentials.
-		/// </summary>
-		/// <returns>
-		///		A <see cref="Task"/> representing the asynchronous unit-test execution.
-		/// </returns>
-		[TestMethod]
-		public async Task LoginWithInvalidCredentials()
-		{
-			ICredentials credentials = new NetworkCredential(
-				userName: "dd_cbu_obviously_invalid_credentials",
-				password: "CaaS Powershell integration test"
-			);
-			using (ComputeApiClient computeApiClient = new ComputeApiClient("au"))
-			{
-				try
-				{
-					await computeApiClient.LoginAsync(credentials);
-					
-					Assert.Fail("LoginAsync with invalid credentials failed to raise a ComputeApiException.");
-				}
-				catch (ComputeApiException eInvalidCredentials)
-				{
-					if (eInvalidCredentials.Error != ComputeApiError.InvalidCredentials)
-						throw;
-				}
 			}
 		}
 

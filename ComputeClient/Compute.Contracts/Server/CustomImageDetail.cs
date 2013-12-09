@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace DD.CBU.Compute.Api.Contracts.Server
 {
 	/// <summary>
-	///		Represents a user-created CaaS image with software labels.
+	///		Represents detailed information for a user-created CaaS image (with labels for its included software).
 	/// </summary>
 	[XmlRoot("ImageWithSoftwareLabels", Namespace = XmlNamespaceConstants.Server)]
-	public class CustomImageWithSoftwareLabels
-		: ImageWithSoftwareLabels
+	public class CustomImageDetail
+		: ImageDetail, ICustomImageDetail
 	{
 		/// <summary>
-		///		Create a new <see cref="CustomImageWithSoftwareLabels"/>.
+		///		Create a new <see cref="CustomImageDetail"/>.
 		/// </summary>
-		public CustomImageWithSoftwareLabels()
+		public CustomImageDetail()
 		{
 		}
 
