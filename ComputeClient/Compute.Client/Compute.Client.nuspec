@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DD.CBU.Compute.Api.Client</id>
-    <version>1.0.1</version>
+    <version>$version$</version>
     <title>Compute Client API</title>
     <authors>Dimension Data</authors>
     <owners>shai.saar@didata.com.au</owners>
@@ -13,7 +13,8 @@
     <tags/>
     <dependencies>
         <group targetFramework=".NETFramework4.5">
-            <dependency id="DD.CBU.Compute.API.Contracts" version="[1.0,]" />
+            <dependency id="DD.CBU.Compute.API.Contracts" version="$version$" />
+			<dependency id="Newtonsoft.Json" version="6.0.1" />
         </group>
     </dependencies>
   </metadata>

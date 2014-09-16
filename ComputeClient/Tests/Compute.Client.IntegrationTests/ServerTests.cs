@@ -46,7 +46,7 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 					accountCredentials: GetIntegrationTestCredentials()
 				);
 
-				images = await apiClient.GetImages("AU1");
+				images = await apiClient.GetImagesAsync("AU1");
 			}
 
 			foreach (var image in images)
@@ -82,11 +82,11 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 					accountCredentials: GetIntegrationTestCredentials()
 				);
 
-				foreach (DatacenterSummary datacenter in await apiClient.GetAvailableDataCenters())
+				foreach (DatacenterSummary datacenter in await apiClient.GetAvailableDataCentersAsync())
 				{
 					TestContext.WriteLine("DataCenter '{0}' ({1}):", datacenter.LocationCode, datacenter.DisplayName);
 
-					foreach (var image in await apiClient.GetImages(datacenter.LocationCode))
+					foreach (var image in await apiClient.GetImagesAsync(datacenter.LocationCode))
 					{
 						TestContext.WriteLine(
 							"\tImage '{0}' (Id = '{1}') - '{2}' ({3})",

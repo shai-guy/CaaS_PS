@@ -36,74 +36,74 @@ namespace DD.CBU.Compute.Api.Client.Interfaces
         /// Gets a list of software labels.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<SoftwareLabel>> GetListOfSoftwareLabels();
+        Task<IReadOnlyCollection<SoftwareLabel>> GetListOfSoftwareLabelsAsync();
 
         /// <summary>
         /// Gets a list of multi geography regions
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Region>> GetListOfMultiGeographyRegions();
+        Task<IReadOnlyCollection<Region>> GetListOfMultiGeographyRegionsAsync();
 
         /// <summary>
         /// Deletes a sub administrator account
         /// </summary>
         /// <param name="username">The username</param>
         /// <returns></returns>
-        Task<ApiStatus> DeleteSubAdministratorAccount(string username);
+		Task<ApiStatus> DeleteSubAdministratorAccountAsync(string username);
 
         /// <summary>
         /// Designate a primary administrator account
         /// </summary>
         /// <param name="username">The username</param>
         /// <returns></returns>
-        Task<ApiStatus> DesignatePrimaryAdministratorAccount(string username);
+        Task<ApiStatus> DesignatePrimaryAdministratorAccountAsync(string username);
 
         /// <summary>
         /// Gets all the data centres for the organisation.
         /// </summary>
         /// <returns>The data centres.</returns>
-        Task<IEnumerable<DatacenterWithMaintenanceStatusType>> GetDataCentersWithMaintenanceStatuses();
+        Task<IReadOnlyCollection<DatacenterWithMaintenanceStatusType>> GetDataCentersWithMaintenanceStatusesAsync();
 
         /// <summary>
         /// Gets the account of the organisation.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Account>> GetAccounts();
+        Task<IReadOnlyCollection<Account>> GetAccountsAsync();
 
         /// <summary>
         /// Adds a sub administrator account
         /// </summary>
         /// <param name="account">The account</param>
         /// <returns></returns>
-        Task<Status> AddSubAdministratorAccount(Account account);
+        Task<Status> AddSubAdministratorAccountAsync(Account account);
         
         /// <summary>
         /// Updates an administrator account
         /// </summary>
         /// <param name="account">The account</param>
         /// <returns></returns>
-        Task<Status> UpdateAdministratorAccount(Account account);
+        Task<Status> UpdateAdministratorAccountAsync(Account account);
 
         /// <summary>
         /// Gets available data centres
         /// </summary>
         /// <returns></returns>
         [Obsolete("Use GetDataCentersWithMaintenanceStatuses instead!")]
-        Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCenters();
+        Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCentersAsync();
 
         /// <summary>
         /// Gets the OS images at a particular location.
         /// </summary>
         /// <param name="locationName">The location.</param>
         /// <returns></returns>
-        Task<IReadOnlyList<DeployedImageWithSoftwareLabelsType>> GetImages(string locationName);
+        Task<IReadOnlyList<DeployedImageWithSoftwareLabelsType>> GetImagesAsync(string locationName);
 
         /// <summary>
         /// Gets the deployed customer server images.
         /// </summary>
         /// <param name="networkLocation">The location.</param>
         /// <returns></returns>
-        Task<IEnumerable<DeployedImageWithSoftwareLabelsType>> GetCustomerServerImages(string networkLocation);
+        Task<IReadOnlyCollection<DeployedImageWithSoftwareLabelsType>> GetCustomerServerImagesAsync(string networkLocation);
 
         /// <summary>
         /// Deploy a server using an image in a specified network.
@@ -115,7 +115,7 @@ namespace DD.CBU.Compute.Api.Client.Interfaces
         /// <param name="adminPassword">The administrator password.</param>
         /// <param name="isStarted">Will the server powers on after deployment?</param>
         /// <returns>The status of the deployment.</returns>
-        Task<Status> DeployServerImageTask(
+        Task<Status> DeployServerImageAsync(
             string name,
             string description,
             string networkId,
@@ -128,40 +128,40 @@ namespace DD.CBU.Compute.Api.Client.Interfaces
         /// </summary>
         /// <param name="serverId">The server id.</param>
         /// <returns></returns>
-        Task<Status> ServerPowerOn(string serverId);
+        Task<Status> ServerPowerOnAsync(string serverId);
 
         /// <summary>
         /// Powers off the server.
         /// </summary>
         /// <param name="serverId"></param>
         /// <returns></returns>
-        Task<Status> ServerPowerOff(string serverId);
+        Task<Status> ServerPowerOffAsync(string serverId);
 
         /// <summary>
         /// Restart the server.
         /// </summary>
         /// <param name="serverId">The server id.</param>
         /// <returns></returns>
-        Task<Status> ServerRestart(string serverId);
+        Task<Status> ServerRestartAsync(string serverId);
 
         /// <summary>
         /// Shutdown the server.
         /// </summary>
         /// <param name="serverId">The server id.</param>
         /// <returns></returns>
-        Task<Status> ServerShutdown(string serverId);
+        Task<Status> ServerShutdownAsync(string serverId);
 
         /// <summary>
         /// Delete the server.
         /// </summary>
         /// <param name="serverId">The server id.</param>
         /// <returns></returns>
-        Task<Status> ServerDelete(string serverId);
+        Task<Status> ServerDeleteAsync(string serverId);
 
         /// <summary>
         /// Gets the deployed servers.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<ServerWithBackupType>> GetDeployedServers();
+        Task<IReadOnlyCollection<ServerWithBackupType>> GetDeployedServersAsync();
     }
 }

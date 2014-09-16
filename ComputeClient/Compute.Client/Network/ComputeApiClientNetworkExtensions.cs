@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
 
@@ -24,13 +25,18 @@
         /// <param name="dataCentreLocation">The data centre location.</param>
         /// <param name="description">Optional. A decription for the network.</param>
         /// <returns>A status of the response.</returns>
-        public static async Task<Status> CreateNetwork(
+        public static async Task<Status> CreateNetworkAsync(
             this IComputeApiClient client,
             string networkName,
             string dataCentreLocation,
             string description = null)
         {
-            return
+			if (string.IsNullOrWhiteSpace(networkName))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkName");
+			if (string.IsNullOrWhiteSpace(dataCentreLocation))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "dataCentreLocation");
+			
+			return
                 await
                 client.WebApi.ApiPostAsync<NewNetworkWithLocationType, Status>(
                     ApiUris.CreateNetwork(client.Account.OrganizationId),
@@ -47,7 +53,7 @@
         /// </summary>
         /// <param name="client">The <see cref="IComputeApiClient"/> object.</param>
         /// <returns>The networks</returns>
-        public static async Task<IEnumerable<NetworkWithLocationsNetwork>> GetNetworksTask(this IComputeApiClient client)
+        public static async Task<IEnumerable<NetworkWithLocationsNetwork>> GetNetworksAsync(this IComputeApiClient client)
         {
             var networks = await client.WebApi.ApiGetAsync<NetworkWithLocations>(ApiUris.NetworkWithLocations(client.Account.OrganizationId));
             return networks.Items;
@@ -60,9 +66,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object.</param>
         /// <param name="networkId">The network id to delete.</param>
         /// <returns>A status of the response.</returns>
-        public static async Task<Status> DeleteNetwork(this IComputeApiClient client, string networkId)
+        public static async Task<Status> DeleteNetworkAsync(this IComputeApiClient client, string networkId)
         {
-            return
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			
+			return
                 await client.WebApi.ApiGetAsync<Status>(ApiUris.DeleteNetwork(client.Account.OrganizationId, networkId));
         }
 
@@ -73,9 +82,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object.</param>
         /// <param name="networkId">The target network id.</param>
         /// <returns>The status of the operation.</returns>
-        public static async Task<IEnumerable<NatRuleType>> GetNatRules(this IComputeApiClient client, string networkId)
+        public static async Task<IEnumerable<NatRuleType>> GetNatRulesAsync(this IComputeApiClient client, string networkId)
         {
-            var natRules =
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			
+			var natRules =
                 await client.WebApi.ApiGetAsync<NatRules>(ApiUris.GetNatRules(client.Account.OrganizationId, networkId));
 
             return natRules.NatRule;
@@ -89,9 +101,14 @@
         /// <param name="networkId">The target network id.</param>
         /// <param name="natRuleId">The NAT rule id to delete.</param>
         /// <returns>The status of the operation.</returns>
-        public static async Task<Status> DeleteNatRule(this IComputeApiClient client, string networkId, string natRuleId)
+        public static async Task<Status> DeleteNatRuleAsync(this IComputeApiClient client, string networkId, string natRuleId)
         {
-            return
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			if (string.IsNullOrWhiteSpace(natRuleId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "natRuleId");
+
+			return
                 await
                 client.WebApi.ApiGetAsync<Status>(
                     ApiUris.DeleteNatRule(client.Account.OrganizationId, networkId, natRuleId));
@@ -108,14 +125,17 @@
         /// </summary>
         /// <param name="client">The <see cref="ComputeApiClient"/> object.</param>
         /// <param name="networkId">The target network id.</param>
-        /// <param name="natRuleName"></param>
-        /// <param name="sourceIp"></param>
-        /// <returns></returns>
-        public static async Task<NatRuleType> CreateNatRule(this IComputeApiClient client, string networkId, string natRuleName, IPAddress sourceIp)
+        /// <param name="natRuleName">The NAT rule name</param>
+        /// <param name="sourceIp">The source IP</param>
+        /// <returns>The nat rule type</returns>
+        public static async Task<NatRuleType> CreateNatRuleAsync(this IComputeApiClient client, string networkId, string natRuleName, IPAddress sourceIp)
         {
-            Contract.Requires(!string.IsNullOrEmpty(networkId), "Network id cannot be null or empty");
-            Contract.Requires(!string.IsNullOrEmpty(natRuleName), "NAT rule name cannot be null or empty");
-            Contract.Requires(sourceIp != null, "Source IP cannot be null");
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			if (string.IsNullOrWhiteSpace(natRuleName))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "natRuleName");
+			if (sourceIp == null)
+				throw new ArgumentNullException("sourceIp", "argument cannot be null!");
 
             return
                 await
@@ -131,9 +151,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <param name="networkId">The target network id</param>
         /// <returns>The ACL rules.</returns>
-        public static async Task<IEnumerable<AclRuleType>> GetAclRules(this IComputeApiClient client, string networkId)
+        public static async Task<IEnumerable<AclRuleType>> GetAclRulesAsync(this IComputeApiClient client, string networkId)
         {
-            var aclRules =
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			
+			var aclRules =
                 await
                 client.WebApi.ApiGetAsync<AclRuleListType>(
                     ApiUris.GetAclRules(client.Account.OrganizationId, networkId));
@@ -152,9 +175,14 @@
         /// <param name="networkId">The target network id.</param>
         /// <param name="aclRuleId">The ACL rule to delete.</param>
         /// <returns>The status of the operation.</returns>
-        public static async Task<Status> DeleteAclRule(this IComputeApiClient client, string networkId, string aclRuleId)
+        public static async Task<Status> DeleteAclRuleAsync(this IComputeApiClient client, string networkId, string aclRuleId)
         {
-            return
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			if (string.IsNullOrWhiteSpace(aclRuleId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "aclRuleId");
+
+			return
                 await
                 client.WebApi.ApiGetAsync<Status>(
                     ApiUris.DeleteAclRule(client.Account.OrganizationId, networkId, aclRuleId));
@@ -215,7 +243,7 @@
         /// <param name="port2">Optional depending on <paramref name="portRangeType"/>. Value within a range of 1-65535.</param>
         /// <param name="aclType">Optional. One of (OUTSIDE_ACL, INSIDE_ACL). Default if not specified is OUTSIDE_ACL.</param>
         /// <returns>The ACL rules.</returns>
-        public static async Task<AclRuleType> CreateAclRule(
+        public static async Task<AclRuleType> CreateAclRuleAsync(
             this IComputeApiClient client,
             string networkId,
             string aclRuleName,
@@ -231,10 +259,16 @@
             int port2 = 0,
             AclType aclType = AclType.OUTSIDE_ACL)
         {
-            Contract.Requires(!string.IsNullOrEmpty(aclRuleName), "The ACL rule name must NOT be empty or null!");
-            Contract.Requires(aclRuleName.Length < 60, "ACL rule name cannot exceed 60 chars");
-            Contract.Requires(position >= 100 && position <= 500, "Position must be between 100 and 500 inclusive");
-            Contract.Requires(aclType == AclType.INSIDE_ACL || aclType == AclType.OUTSIDE_ACL, "ACL Type must be one of (OUTSIDE_ACL, INSIDE_ACL)");
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			if (string.IsNullOrWhiteSpace(aclRuleName))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "aclRuleName");
+			if (aclRuleName.Length >= 60)
+				throw new ArgumentException("ACL rule name cannot exceed 60 chars", "aclRuleName");
+			if (position < 100 || position > 500)
+				throw new ArgumentException("Position must be between 100 and 500 inclusive", "position");
+			if (aclType != AclType.INSIDE_ACL && aclType != AclType.OUTSIDE_ACL)
+				throw new ArgumentException("ACL Type must be one of (OUTSIDE_ACL, INSIDE_ACL)", "aclType");
 
             var portRange = new PortRangeType { type = portRangeType };
             // Validate that the ports are specified when needed

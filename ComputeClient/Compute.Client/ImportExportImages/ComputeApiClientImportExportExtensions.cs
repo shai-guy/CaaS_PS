@@ -1,6 +1,7 @@
 ﻿namespace DD.CBU.Compute.Api.Client.ImportExportImages
 {
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using DD.CBU.Compute.Api.Client.Interfaces;
@@ -16,7 +17,7 @@
         /// </summary>
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <returns>The OVF Packages</returns>
-        public static async Task<OvfPackages> GetOvfPackages(
+        public static async Task<OvfPackages> GetOvfPackagesAsync(
             this IComputeApiClient client)
         {
             return
@@ -30,7 +31,7 @@
         /// </summary>
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <returns>The customer image imports currently in progress</returns>
-        public static async Task<IEnumerable<ServerImageWithStateType>> GetCustomerImagesImports(
+		public static async Task<IReadOnlyCollection<ServerImageWithStateType>> GetCustomerImagesImportsAsync(
             this IComputeApiClient client)
         {
             var imports =
@@ -56,14 +57,21 @@
         /// The target data center must reside within the same Geographic Region</param>
         /// <param name="description">0-255 characters in length.</param>
         /// <returns>Returns the ServerImageWithState object</returns>
-        public static async Task<ServerImageWithStateType> ImportCustomerImage(
+        public static async Task<ServerImageWithStateType> ImportCustomerImageAsync(
             this IComputeApiClient client,
             string customerImageName,
             string ovfPackageName,
             string networkLocation,
             string description)
         {
-            return
+			if (string.IsNullOrWhiteSpace(customerImageName))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "customerImageName");
+			if (string.IsNullOrWhiteSpace(ovfPackageName))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "ovfPackageName");
+			if (string.IsNullOrWhiteSpace(networkLocation))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkLocation");
+			
+			return
                 await
                 client.WebApi.ApiPostAsync<NewImageImport, ServerImageWithStateType>(
                     ApiUris.ImportCustomerImage(client.Account.OrganizationId),

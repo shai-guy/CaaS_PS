@@ -1,6 +1,7 @@
 ﻿namespace DD.CBU.Compute.Api.Client.Backup
 {
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.Threading.Tasks;
 
@@ -19,8 +20,11 @@
         /// <param name="serverId">The server id</param>
         /// <param name="plan">The enumerated service plan</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> EnableBackup(this IComputeApiClient client, string serverId, ServicePlan plan)
+        public static async Task<Status> EnableBackupAsync(this IComputeApiClient client, string serverId, ServicePlan plan)
         {
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
             return
                 await
                 client.WebApi.ApiPostAsync<NewBackup, Status>(
@@ -35,9 +39,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <param name="serverId">The server id</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> DisableBackup(this IComputeApiClient client, string serverId)
+        public static async Task<Status> DisableBackupAsync(this IComputeApiClient client, string serverId)
         {
-            return await client.WebApi.ApiGetAsync<Status>(ApiUris.DisableBackup(client.Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
+			return await client.WebApi.ApiGetAsync<Status>(ApiUris.DisableBackup(client.Account.OrganizationId, serverId));
         }
 
         /// <summary>
@@ -47,9 +54,12 @@
         /// <param name="serverId">The server id</param>
         /// <param name="plan">The plan to change to</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> ChangeBackupPlan(this IComputeApiClient client, string serverId, ServicePlan plan)
+        public static async Task<Status> ChangeBackupPlanAsync(this IComputeApiClient client, string serverId, ServicePlan plan)
         {
-            return
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
+			return
                 await
                 client.WebApi.ApiPostAsync<ModifyBackup, Status>(
                     ApiUris.ChangeBackupPlan(client.Account.OrganizationId, serverId),
@@ -62,9 +72,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <param name="serverId">The server id</param>
         /// <returns>The status of the request</returns>
-        public static async Task<IEnumerable<BackupClientType>> GetBackupClientTypes(this IComputeApiClient client, string serverId)
+        public static async Task<IReadOnlyCollection<BackupClientType>> GetBackupClientTypesAsync(this IComputeApiClient client, string serverId)
         {
-            var types = await client.WebApi.ApiGetAsync<BackupClientTypes>(ApiUris.BackupClientTypes(client.Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
+			var types = await client.WebApi.ApiGetAsync<BackupClientTypes>(ApiUris.BackupClientTypes(client.Account.OrganizationId, serverId));
             return types.Items;
         }
 
@@ -74,9 +87,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <param name="serverId">The server id</param>
         /// <returns>The status of the request</returns>
-        public static async Task<IEnumerable<BackupStoragePolicy>> GetBackupStoragePolicies(this IComputeApiClient client, string serverId)
+        public static async Task<IReadOnlyCollection<BackupStoragePolicy>> GetBackupStoragePoliciesAsync(this IComputeApiClient client, string serverId)
         {
-            var types = await client.WebApi.ApiGetAsync<BackupStoragePolicies>(ApiUris.BackupStoragePolicies(client.Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
+			var types = await client.WebApi.ApiGetAsync<BackupStoragePolicies>(ApiUris.BackupStoragePolicies(client.Account.OrganizationId, serverId));
             return types.Items;
         }
 
@@ -86,9 +102,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <param name="serverId">The server id</param>
         /// <returns>The status of the request</returns>
-        public static async Task<IEnumerable<BackupSchedulePolicy>> GetBackupSchedulePolicies(this IComputeApiClient client, string serverId)
+		public static async Task<IReadOnlyCollection<BackupSchedulePolicy>> GetBackupSchedulePoliciesAsync(this IComputeApiClient client, string serverId)
         {
-            var types = await client.WebApi.ApiGetAsync<BackupSchedulePolicies>(ApiUris.BackupSchedulePolicies(client.Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
+			var types = await client.WebApi.ApiGetAsync<BackupSchedulePolicies>(ApiUris.BackupSchedulePolicies(client.Account.OrganizationId, serverId));
             return types.Items;
         }
 
@@ -98,11 +117,12 @@
         /// <param name="client">The <see cref="ComputeApiClient"/> object</param>
         /// <param name="serverId">The server id</param>
         /// <returns>A list of backup clients</returns>
-        public static async Task<IEnumerable<BackupClientDetailsType>> GetBackupClients(
+		public static async Task<IReadOnlyCollection<BackupClientDetailsType>> GetBackupClientsAsync(
             this IComputeApiClient client,
             string serverId)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(serverId), "Server id must not be null or empty");
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
 
             var details =
                 await
@@ -120,7 +140,7 @@
         /// <param name="schedulePolicy">The backup schedule policy</param>
         /// <param name="alertingType">The alerting type</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> AddBackupClient(
+        public static async Task<Status> AddBackupClientAsync(
             this IComputeApiClient client,
             string serverId,
             BackupClientType clientType,
@@ -128,10 +148,14 @@
             BackupSchedulePolicy schedulePolicy,
             AlertingType alertingType)
         {
-            Contract.Requires(!string.IsNullOrEmpty(serverId), "Server id cannot be null or empty");
-            Contract.Requires(clientType != null, "Client type cannot be null");
-            Contract.Requires(storagePolicy != null, "Storage policy cannot be null");
-            Contract.Requires(schedulePolicy != null, "Schedule policy cannot be null");
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			if (clientType == null)
+				throw new ArgumentNullException("clientType", "argument cannot be null!");
+			if (storagePolicy == null)
+				throw new ArgumentNullException("storagePolicy", "argument cannot be null!");
+			if (schedulePolicy == null)
+				throw new ArgumentNullException("schedulePolicy", "argument cannot be null!");
 
             return
                 await
@@ -153,13 +177,15 @@
         /// <param name="serverId">The server id</param>
         /// <param name="backupClient">The backup client to remove</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> RemoveBackupClient(
+        public static async Task<Status> RemoveBackupClientAsync(
             this IComputeApiClient client,
             string serverId,
             BackupClientDetailsType backupClient)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(serverId), "Server cannot be null or empty");
-            Contract.Requires(backupClient != null, "Backup client cannot be null");
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			if (backupClient == null)
+				throw new ArgumentNullException("backupClient", "argument cannot be null!");
 
             return
                 await
@@ -177,7 +203,7 @@
         /// <param name="schedulePolicy">The schedule policy to modify</param>
         /// <param name="alertingType">The alerting type to modify</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> ModifyBackupClient(
+        public static async Task<Status> ModifyBackupClientAsync(
             this IComputeApiClient client,
             string serverId,
             BackupClientDetailsType backupClient,
@@ -185,8 +211,12 @@
             BackupSchedulePolicy schedulePolicy,
             AlertingType alertingType)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(serverId), "Server cannot be null or empty");
-            Contract.Requires(backupClient != null, "Backup client cannot be null");
+			if (backupClient == null)
+				throw new ArgumentNullException("backupClient", "argument cannot be null!");
+			if (storagePolicy == null)
+				throw new ArgumentNullException("storagePolicy", "argument cannot be null!");
+			if (schedulePolicy == null)
+				throw new ArgumentNullException("schedulePolicy", "argument cannot be null!");
 
             return
                 await
@@ -207,14 +237,16 @@
         /// <param name="serverId">The server id</param>
         /// <param name="backupClient">The backup client to modify</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> InitiateBackup(
+        public static async Task<Status> InitiateBackupAsync(
             this IComputeApiClient client,
             string serverId,
             BackupClientDetailsType backupClient)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(serverId), "Server cannot be null or empty");
-            Contract.Requires(backupClient != null, "Backup client cannot be null");
-
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			if (backupClient == null)
+				throw new ArgumentNullException("backupClient", "argument cannot be null!");
+		
             return
                 await
                 client.WebApi.ApiGetAsync<Status>(
@@ -228,14 +260,16 @@
         /// <param name="serverId">The server id</param>
         /// <param name="backupClient">The backup client to modify</param>
         /// <returns>The status of the request</returns>
-        public static async Task<Status> CancelBackupJob(
+        public static async Task<Status> CancelBackupJobAsync(
             this IComputeApiClient client,
             string serverId,
             BackupClientDetailsType backupClient)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(serverId), "Server cannot be null or empty");
-            Contract.Requires(backupClient != null, "Backup client cannot be null");
-
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			if (backupClient == null)
+				throw new ArgumentNullException("backupClient", "argument cannot be null!");
+		
             return
                 await
                 client.WebApi.ApiGetAsync<Status>(

@@ -96,6 +96,8 @@ namespace DD.CBU.Compute.Api.Client
         {
             get
             {
+				CheckDisposed();
+
                 return WebApi.Account;
             }
         }
@@ -116,7 +118,12 @@ namespace DD.CBU.Compute.Api.Client
         /// </returns>
         public async Task<IAccount> LoginAsync(ICredentials accountCredentials)
         {
-            return await WebApi.LoginAsync(accountCredentials);
+	        if (accountCredentials == null)
+		        throw new ArgumentNullException("accountCredentials", "Account credentials cannot be null!");
+
+			CheckDisposed();
+
+			return await WebApi.LoginAsync(accountCredentials);
         }
 
         /// <summary>
@@ -124,21 +131,25 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         public void Logout()
         {
-            WebApi.Logout();
+			CheckDisposed();
+			
+			WebApi.Logout();
         }
 
         /// <summary>
         /// Gets a list of software labels
         /// </summary>
-        /// <returns></returns>
-        public async Task<IEnumerable<SoftwareLabel>> GetListOfSoftwareLabels()
+        /// <returns>A list of software labels</returns>
+        public async Task<IReadOnlyCollection<SoftwareLabel>> GetListOfSoftwareLabelsAsync()
         {
-            var relativeUrl = string.Format("{0}/softwarelabel", Account.OrganizationId);
+			CheckDisposed();
+			
+			var relativeUrl = string.Format("{0}/softwarelabel", Account.OrganizationId);
             var uri = new Uri(relativeUrl, UriKind.Relative);
 
             var labels = await WebApi.ApiGetAsync<SoftwareLabels>(uri);
 
-            return labels.Items;
+            return (labels.Items);
         }
 
         /// <summary>
@@ -146,9 +157,11 @@ namespace DD.CBU.Compute.Api.Client
         /// An element is returned for each available Geographic Region.
         /// </summary>
         /// <returns>A list of regions associated with the org ID.</returns>
-        public async Task<IEnumerable<Region>> GetListOfMultiGeographyRegions()
+        public async Task<IReadOnlyCollection<Region>> GetListOfMultiGeographyRegionsAsync()
         {
-            var relativeUrl = string.Format("{0}/multigeo", Account.OrganizationId);
+			CheckDisposed();
+			
+			var relativeUrl = string.Format("{0}/multigeo", Account.OrganizationId);
             var uri = new Uri(relativeUrl, UriKind.Relative);
 
             var regions = await WebApi.ApiGetAsync<Geos>(uri);
@@ -163,9 +176,14 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="username">The Sub-Administrator account.</param>
         /// <returns>A <see cref="ApiStatus"/> result that describes whether or not the operation was successful.</returns>
-        public Task<ApiStatus> DeleteSubAdministratorAccount(string username)
+		public Task<ApiStatus> DeleteSubAdministratorAccountAsync(string username)
         {
-            return ExecuteAccountCommand(username, "{0}/account/{1}?delete");
+	        if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentException("Username cannot be null, Empty or whitespace!", "username");
+
+			CheckDisposed();
+
+			return ExecuteAccountCommandAsync(username, "{0}/account/{1}?delete");
         }
 
         /// <summary>
@@ -175,19 +193,26 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="username">The Sub-Administrator account.</param>
         /// <returns>A <see cref="ApiStatus"/> result that describes whether or not the operation was successful.</returns>
-        public Task<ApiStatus> DesignatePrimaryAdministratorAccount(string username)
+        public Task<ApiStatus> DesignatePrimaryAdministratorAccountAsync(string username)
         {
-            return ExecuteAccountCommand(username, "{0}/account/{1}?primary");
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentException("Username cannot be null, Empty or whitespace!", "username");
+
+			CheckDisposed();
+			
+			return ExecuteAccountCommandAsync(username, "{0}/account/{1}?primary");
         }
 
 
         /// <summary>
-        /// This function identifies the list of data centers available to the organization of the authenticating user. 
+        /// This function identifies the list of data centres available to the organization of the authenticating user. 
         /// </summary>
-        /// <returns>The list of data centers associated with the organization.</returns>
-        public async Task<IEnumerable<DatacenterWithMaintenanceStatusType>> GetDataCentersWithMaintenanceStatuses()
+        /// <returns>The list of data centres associated with the organization.</returns>
+        public async Task<IReadOnlyCollection<DatacenterWithMaintenanceStatusType>> GetDataCentersWithMaintenanceStatusesAsync()
         {
-            var dataCenters = await WebApi.ApiGetAsync<DatacentersWithMaintenanceStatus>(ApiUris.DatacentresWithMaintanence(Account.OrganizationId));
+			CheckDisposed();
+			
+			var dataCenters = await WebApi.ApiGetAsync<DatacentersWithMaintenanceStatus>(ApiUris.DatacentresWithMaintanence(Account.OrganizationId));
             return dataCenters.datacenter;
         }
 
@@ -197,9 +222,11 @@ namespace DD.CBU.Compute.Api.Client
         /// identified by the “primary administrator” role.
         /// </summary>
         /// <returns>A list of accounts associated with the organisation.</returns>
-        public async Task<IEnumerable<Account>> GetAccounts()
+        public async Task<IReadOnlyCollection<Account>> GetAccountsAsync()
         {
-            var relativeUrl = string.Format("{0}/account", Account.OrganizationId);
+			CheckDisposed();
+			
+			var relativeUrl = string.Format("{0}/account", Account.OrganizationId);
             var accounts = await WebApi.ApiGetAsync<Accounts>(new Uri(relativeUrl, UriKind.Relative));
             return accounts.Items;
         }
@@ -212,9 +239,13 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="account">The account that will be added to the org.</param>
         /// <returns>A <see cref="Status"/> object instance that shows the results of the operation.</returns>
-        public async Task<Status> AddSubAdministratorAccount(Account account)
+        public async Task<Status> AddSubAdministratorAccountAsync(Account account)
         {
-            var relativeUrl = string.Format("{0}/account", Account.OrganizationId);
+			if (account == null)
+				throw new ArgumentNullException("account", "Account argument cannot be null, Empty or whitespace!");
+
+			CheckDisposed();
+			var relativeUrl = string.Format("{0}/account", Account.OrganizationId);
 
             return await WebApi.ApiPostAsync<Account, Status>(new Uri(relativeUrl, UriKind.Relative), new Account());
         }
@@ -224,9 +255,13 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="account">The account to be updated.</param>
         /// <returns>A <see cref="Status"/> object instance that shows the results of the operation.</returns>
-        public async Task<Status> UpdateAdministratorAccount(Account account)
+        public async Task<Status> UpdateAdministratorAccountAsync(Account account)
         {
-            var parameters = new Dictionary<string, string>();
+			if (account == null)
+				throw new ArgumentNullException("account", "Account argument cannot be null, Empty or whitespace!");
+
+			CheckDisposed();
+			var parameters = new Dictionary<string, string>();
             parameters["username"] = account.UserName;
             parameters["password"] = account.Password;
             parameters["email"] = account.EmailAddress;
@@ -237,7 +272,7 @@ namespace DD.CBU.Compute.Api.Client
             parameters["customDefined1"] = account.CustomDefined1;
             parameters["customDefined2"] = account.CustomDefined2;
 
-            var parameterStrings = parameters.Where(kvp=>kvp.Value != null).Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value));
+            var parameterStrings = parameters.Where(kvp => kvp.Value != null).Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value));
             var parameterText = string.Join("&", parameterStrings);
 
             var roles = account.MemberOfRoles.Select(role => string.Format("role={0}", role.Name));
@@ -250,9 +285,29 @@ namespace DD.CBU.Compute.Api.Client
 			return await WebApi.ApiPostAsync<string, Status>(new Uri(relativeUrl, UriKind.Relative), postBody);
         }
 
-        private async Task<ApiStatus> ExecuteAccountCommand(string username, string uriFormat)
+		/// <summary>
+		/// The execute account command.
+		/// </summary>
+		/// <param name="username">
+		/// The username.
+		/// </param>
+		/// <param name="uriFormat">
+		/// The uri format.
+		/// </param>
+		/// <returns>
+		/// The <see cref="Task"/>.
+		/// </returns>
+		/// <exception cref="ArgumentException">
+		/// </exception>
+		private async Task<ApiStatus> ExecuteAccountCommandAsync(string username, string uriFormat)
         {
-            var uriText = string.Format(uriFormat, Account.OrganizationId, username);
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentException("Username argument cannot be null, Empty or whitespace!", "username");
+			if (string.IsNullOrWhiteSpace(uriFormat))
+				throw new ArgumentException("Account argument cannot be null, Empty or whitespace!", "uriFormat");
+
+			CheckDisposed();
+			var uriText = string.Format(uriFormat, Account.OrganizationId, username);
             var uri = new Uri(uriText, UriKind.Relative);
 
             return await WebApi.ApiGetAsync<ApiStatus>(uri);
@@ -265,7 +320,7 @@ namespace DD.CBU.Compute.Api.Client
         ///		A read-only list of <see cref="IDatacenterDetail"/>s representing the data centre information.
         /// </returns>
         [Obsolete("This method was replaced by GetListOfDataCentersWithMaintenanceStatuses based on CaaS API!")]
-        public async Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCenters()
+        public async Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCentersAsync()
         {
             CheckDisposed();
 
@@ -288,14 +343,16 @@ namespace DD.CBU.Compute.Api.Client
         /// <returns>
         ///		A read-only list <see cref="DeployedImageWithSoftwareLabelsType"/>, sorted by UTC creation date / time, representing the images.
         /// </returns>
-        public async Task<IReadOnlyList<DeployedImageWithSoftwareLabelsType>> GetImages(string locationName)
+        public async Task<IReadOnlyList<DeployedImageWithSoftwareLabelsType>> GetImagesAsync(string locationName)
         {
             if (String.IsNullOrWhiteSpace(locationName))
                 throw new ArgumentException(
                     "Argument cannot be null, empty, or composed entirely of whitespace: 'locationName'.",
                     "locationName");
 
-            var imagesWithSoftwareLabels =
+			CheckDisposed();
+			
+			var imagesWithSoftwareLabels =
                 await
                 WebApi.ApiGetAsync<DeployedImagesWithSoftwareLabels>(ApiUris.ImagesWithSoftwareLabels(locationName));
 
@@ -309,9 +366,12 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="networkLocation">The network location</param>
         /// <returns>A list of deployed customer images with software labels in location</returns>
-        public async Task<IEnumerable<DeployedImageWithSoftwareLabelsType>> GetCustomerServerImages(string networkLocation)
+        public async Task<IReadOnlyCollection<DeployedImageWithSoftwareLabelsType>> GetCustomerServerImagesAsync(string networkLocation)
         {
-            //Contract.Requires(!string.IsNullOrWhiteSpace(networkLocation), "Network location must not be empty or null");
+			if (string.IsNullOrWhiteSpace(networkLocation))
+				throw new ArgumentException("Network argument cannot be null, empty or composed of whitespaces only!", "networkLocation");
+
+			CheckDisposed();
 
             var images = await WebApi.ApiGetAsync<DeployedImagesWithSoftwareLabels>(ApiUris.CustomerImagesWithSoftwareLabels(Account.OrganizationId, networkLocation));
             return images.DeployedImageWithSoftwareLabels;
@@ -320,19 +380,25 @@ namespace DD.CBU.Compute.Api.Client
         /// <summary>
         /// Deploys a server using an image into a specified network.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
-        /// <param name="networkId"></param>
-        /// <param name="imageId"></param>
-        /// <param name="adminPassword"></param>
-        /// <param name="isStarted"></param>
-        /// <returns></returns>
-	    public async Task<Status> DeployServerImageTask(string name, string description, string networkId, string imageId, string adminPassword, bool isStarted)
+        /// <param name="name">The name of the server.</param>
+        /// <param name="description">The description of the server (optional).</param>
+        /// <param name="networkId">The network id</param>
+        /// <param name="imageId">The image id</param>
+        /// <param name="adminPassword">The administrator password</param>
+        /// <param name="isStarted">A value indicating whether the server will be started or not.</param>
+        /// <returns>The status of the operation</returns>
+	    public async Task<Status> DeployServerImageAsync(string name, string description, string networkId, string imageId, string adminPassword, bool isStarted)
 	    {
-            //Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(name), "name argument must not be empty");
-            //Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(networkId), "network id must not be empty");
-            //Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(imageId), "Image id must not be empty");
-            //Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(adminPassword), "administrator password cannot be null or empty");
+			if (string.IsNullOrWhiteSpace(name))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "name");
+			if (string.IsNullOrWhiteSpace(networkId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "networkId");
+			if (string.IsNullOrWhiteSpace(imageId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "imageId");
+			if (string.IsNullOrWhiteSpace(adminPassword))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "adminPassword");
+
+			CheckDisposed();
 
             return
                 await
@@ -341,7 +407,7 @@ namespace DD.CBU.Compute.Api.Client
                     new NewServerToDeploy
                         {
                             name = name,
-                            description = description,
+                            description = description ?? string.Empty,
                             vlanResourcePath =
                                 string.Format("/oec/{0}/network/{1}", Account.OrganizationId, networkId),
                             imageResourcePath = string.Format("/oec/base/image/{0}", imageId),
@@ -355,9 +421,14 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="serverId">The server id</param>
         /// <returns>Returns a status of the HTTP request</returns>
-        public async Task<Status> ServerPowerOn(string serverId)
+        public async Task<Status> ServerPowerOnAsync(string serverId)
 	    {
-	        return await WebApi.ApiGetAsync<Status>(ApiUris.PowerOnServer(Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+
+			CheckDisposed();
+
+			return await WebApi.ApiGetAsync<Status>(ApiUris.PowerOnServer(Account.OrganizationId, serverId));
 	    }
         
         /// <summary>
@@ -365,9 +436,14 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="serverId">The server id</param>
         /// <returns>Returns a status of the HTTP request</returns>
-        public async Task<Status> ServerPowerOff(string serverId)
+        public async Task<Status> ServerPowerOffAsync(string serverId)
         {
-            return await this.WebApi.ApiGetAsync<Status>(ApiUris.PoweroffServer(Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+			
+			CheckDisposed();
+
+			return await this.WebApi.ApiGetAsync<Status>(ApiUris.PoweroffServer(Account.OrganizationId, serverId));
         }
 
         /// <summary>
@@ -375,19 +451,29 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="serverId">The server id</param>
         /// <returns>Returns a status of the HTTP request</returns>
-        public async Task<Status> ServerRestart(string serverId)
+        public async Task<Status> ServerRestartAsync(string serverId)
         {
-            return await this.WebApi.ApiGetAsync<Status>(ApiUris.RebootServer(Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+
+			CheckDisposed();
+
+			return await this.WebApi.ApiGetAsync<Status>(ApiUris.RebootServer(Account.OrganizationId, serverId));
         }
 
         /// <summary>
-        /// "Graceful" shutdown of the server.
+        /// A "Graceful" shutdown of the server.
         /// </summary>
         /// <param name="serverId">The server id</param>
         /// <returns>Returns a status of the HTTP request</returns>
-        public async Task<Status> ServerShutdown(string serverId)
+        public async Task<Status> ServerShutdownAsync(string serverId)
         {
-            return await this.WebApi.ApiGetAsync<Status>(ApiUris.ShutdownServer(Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+
+			CheckDisposed();
+
+			return await this.WebApi.ApiGetAsync<Status>(ApiUris.ShutdownServer(Account.OrganizationId, serverId));
         }
 
         /// <summary>
@@ -395,18 +481,25 @@ namespace DD.CBU.Compute.Api.Client
         /// </summary>
         /// <param name="serverId">The server id</param>
         /// <returns>Returns a status of the HTTP request</returns>
-        public async Task<Status> ServerDelete(string serverId)
+        public async Task<Status> ServerDeleteAsync(string serverId)
         {
-            return await this.WebApi.ApiGetAsync<Status>(ApiUris.DeleteServer(Account.OrganizationId, serverId));
+			if (string.IsNullOrWhiteSpace(serverId))
+				throw new ArgumentException("argument cannot be null, empty or composed of whitespaces only!", "serverId");
+
+			CheckDisposed();
+
+			return await this.WebApi.ApiGetAsync<Status>(ApiUris.DeleteServer(Account.OrganizationId, serverId));
         }
 
         /// <summary>
         /// Gets all the deployed servers.
         /// </summary>
         /// <returns>A list of deployed servers</returns>
-        public async Task<IEnumerable<ServerWithBackupType>> GetDeployedServers()
+        public async Task<IReadOnlyCollection<ServerWithBackupType>> GetDeployedServersAsync()
         {
-            var servers = await this.WebApi.ApiGetAsync<ServersWithBackup>(ApiUris.DeployedServers(Account.OrganizationId));
+			CheckDisposed();
+			
+			var servers = await this.WebApi.ApiGetAsync<ServersWithBackup>(ApiUris.DeployedServers(Account.OrganizationId));
             return servers.server;
         }
 
