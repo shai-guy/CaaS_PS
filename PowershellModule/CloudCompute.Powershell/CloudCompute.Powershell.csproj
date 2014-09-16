@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\CaaS_PS.snk</AssemblyOriginatorKeyFile>
+    <CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +24,40 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\..\CaaS_PS.ruleset</CodeAnalysisRuleSet>
+    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
+    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
+    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
+    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
+    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+    <CodeContractsRunCodeAnalysis>True</CodeContractsRunCodeAnalysis>
+    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
+    <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
+    <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
+    <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
+    <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
+    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
+    <CodeContractsInferRequires>True</CodeContractsInferRequires>
+    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
+    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
+    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
+    <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
+    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
+    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
+    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
+    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
+    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
+    <CodeContractsCustomRewriterAssembly />
+    <CodeContractsCustomRewriterClass />
+    <CodeContractsLibPaths />
+    <CodeContractsExtraRewriteOptions />
+    <CodeContractsExtraAnalysisOptions />
+    <CodeContractsSQLServerOption />
+    <CodeContractsBaseLineFile />
+    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
+    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
+    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
+    <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
+    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,12 +70,23 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DD.CBU.Compute.Api.Client, Version=1.0.5000.8888, Culture=neutral, PublicKeyToken=52cdfe53446c826c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ComputeClient\Compute.Client\bin\Debug\DD.CBU.Compute.Api.Client.dll</HintPath>
+      <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="DD.CBU.Compute.Api.Contracts, Version=1.0.5000.8888, Culture=neutral, PublicKeyToken=52cdfe53446c826c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DD.CBU.Compute.Api.Contracts.1.0.0\lib\net45\DD.CBU.Compute.Api.Contracts.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Windows\Microsoft.NET\assembly\GAC_MSIL\System.Management.Automation\v4.0_3.0.0.0__31bf3856ad364e35\System.Management.Automation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,9 +97,43 @@
     <Compile Include="..\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CaasServerDetails.cs" />
     <Compile Include="ComputeCmdletProvider.cs" />
     <Compile Include="ComputeServiceConnection.cs" />
-    <Compile Include="NewComputeServiceConnectionCmdlet.cs" />
+    <Compile Include="AddCaasBackupClientCmdlet.cs" />
+    <Compile Include="AddCaasAclRuleCmdlet.cs" />
+    <Compile Include="AddCaasNatRuleCmdlet.cs" />
+    <Compile Include="RemoveCaasBackupJobCmdlet.cs" />
+    <Compile Include="NewCaasBackupJobCmdlet.cs" />
+    <Compile Include="RemoveCaasVmCmdlet.cs" />
+    <Compile Include="GetCaasDataCentreCmdlet.cs" />
+    <Compile Include="RemoveCaasNetworkCmdlet.cs" />
+    <Compile Include="NewCaasNetworkCmdlet.cs" />
+    <Compile Include="RemoveCaasNatRuleCmdlet.cs" />
+    <Compile Include="GetCaasNatRulesCmdlet.cs" />
+    <Compile Include="RemoveCaasAclRuleCmdlet.cs" />
+    <Compile Include="GetCaasAclRulesCmdlet.cs" />
+    <Compile Include="GetCaasCustomerImageImportsCmdlet.cs" />
+    <Compile Include="NewCaasImportCustomerImageCmdlet.cs" />
+    <Compile Include="GetCaasOvfPackagesCmdlet.cs" />
+    <Compile Include="GetCaasCustomerImagesCmdlet.cs" />
+    <Compile Include="SetCaasBackupClientCmdlet.cs" />
+    <Compile Include="RemoveCaasBackupClientCmdlet.cs" />
+    <Compile Include="GetCaasBackupClientsCmdlet.cs" />
+    <Compile Include="GetCaasBackupSchedulePoliciesCmdlet.cs" />
+    <Compile Include="GetCaasBackupStoragePoliciesCmdlet.cs" />
+    <Compile Include="GetCaasBackupClientTypesCmdlet.cs" />
+    <Compile Include="SetCaasBackupPlanCmdlet.cs" />
+    <Compile Include="SetCaasProvisionBackupCmdlet.cs" />
+    <Compile Include="PSCmdletCaasBase.cs" />
+    <Compile Include="SessionStateExtensions.cs" />
+    <Compile Include="NewCaasServerDetailsCmdlet.cs" />
+    <Compile Include="SetCaasServerActionCmdlet.cs" />
+    <Compile Include="GetCaasDeployedServersCmdlet.cs" />
+    <Compile Include="GetCaasNetworksCmdlet.cs" />
+    <Compile Include="NewCaasVmCmdlet.cs" />
+    <Compile Include="GetCaasOsImagesCmdlet.cs" />
+    <Compile Include="NewCaasConnectionCmdlet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,14 +142,7 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ComputeClient\Compute.Client\Compute.Client.csproj">
-      <Project>{C1F76663-78B7-4C29-B73B-206986567562}</Project>
-      <Name>Compute.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ComputeClient\Compute.Contracts\Compute.Contracts.csproj">
-      <Project>{4ACBF469-17A8-407B-8C84-0FA112D5CFCF}</Project>
-      <Name>Compute.Contracts</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

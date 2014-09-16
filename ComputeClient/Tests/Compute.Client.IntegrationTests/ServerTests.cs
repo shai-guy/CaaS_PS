@@ -12,7 +12,7 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 	///		Integration tests for the CaaS API client's server-related functionality.
 	/// </summary>
 	[TestClass]
-	public class ServerTests
+	public class ServerTests : BaseTestFixture
 	{
 		/// <summary>
 		///		Create a new CaaS API client integration test-set for server-related functionality.
@@ -39,30 +39,30 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 		[TestMethod]
 		public async Task GetAllSystemImagesAU1()
 		{
-			IReadOnlyList<IImageDetail> images;
+			IReadOnlyList<DeployedImageWithSoftwareLabelsType> images;
 			using (ComputeApiClient apiClient = new ComputeApiClient("AU"))
 			{
 				await apiClient.LoginAsync(
-					accountCredentials: AccountTests.GetIntegrationTestCredentials()
+					accountCredentials: GetIntegrationTestCredentials()
 				);
 
 				images = await apiClient.GetImages("AU1");
 			}
 
-			foreach (IImageDetail image in images)
+			foreach (var image in images)
 			{
 				TestContext.WriteLine(
 					"Image '{0}' (Id = '{1}') - '{2}' ({3})",
-					image.Name,
-					image.Id,
+					image.name,
+					image.id,
 					image
-						.MachineSpecification
-						.OperatingSystem
-						.DisplayName,
+						.machineSpecification
+						.operatingSystem
+						.displayName,
 					image
-						.MachineSpecification
-						.OperatingSystem
-						.OperatingSystemType
+						.machineSpecification
+						.operatingSystem
+						.type
 				);
 			}
 		}
@@ -79,27 +79,27 @@ namespace DD.CBU.Compute.Client.IntegrationTests
 			using (ComputeApiClient apiClient = new ComputeApiClient("AU"))
 			{
 				await apiClient.LoginAsync(
-					accountCredentials: AccountTests.GetIntegrationTestCredentials()
+					accountCredentials: GetIntegrationTestCredentials()
 				);
 
-				foreach (DatacenterSummary datacenter in await apiClient.GetAvailableDataCenters(apiClient.Account.OrganizationId))
+				foreach (DatacenterSummary datacenter in await apiClient.GetAvailableDataCenters())
 				{
 					TestContext.WriteLine("DataCenter '{0}' ({1}):", datacenter.LocationCode, datacenter.DisplayName);
 
-					foreach (ImageDetail image in await apiClient.GetImages(datacenter.LocationCode))
+					foreach (var image in await apiClient.GetImages(datacenter.LocationCode))
 					{
 						TestContext.WriteLine(
 							"\tImage '{0}' (Id = '{1}') - '{2}' ({3})",
-							image.Name,
-							image.Id,
+							image.name,
+							image.id,
 							image
-								.MachineSpecification
-								.OperatingSystem
-								.DisplayName,
+								.machineSpecification
+								.operatingSystem
+								.displayName,
 							image
-								.MachineSpecification
-								.OperatingSystem
-								.OperatingSystemType
+								.machineSpecification
+								.operatingSystem
+								.type
 						);
 					}
 				}

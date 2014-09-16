@@ -113,6 +113,15 @@ namespace DD.CBU.Compute.Api.Contracts.Directory
 			set;
 		}
 
+        /// <summary>
+        /// The password
+        /// </summary>
+	    [XmlElement("password", Namespace = XmlNamespaceConstants.Directory)]
+	    public string Password
+	    {
+	        get; set;
+	    }
+
 		/// <summary>
 		///		Roles (if any) to which the account belongs.
 		/// </summary>

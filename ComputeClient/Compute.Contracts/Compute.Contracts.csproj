@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\CaaS_PS.snk</AssemblyOriginatorKeyFile>
+    <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,40 @@
     <CodeAnalysisRuleSet>..\..\CaaS_PS.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\DD.CBU.Compute.Api.Contracts.xml</DocumentationFile>
     <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
+    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
+    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
+    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
+    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+    <CodeContractsRunCodeAnalysis>True</CodeContractsRunCodeAnalysis>
+    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
+    <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
+    <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
+    <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
+    <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
+    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
+    <CodeContractsInferRequires>True</CodeContractsInferRequires>
+    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
+    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
+    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
+    <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
+    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
+    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
+    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
+    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
+    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
+    <CodeContractsCustomRewriterAssembly />
+    <CodeContractsCustomRewriterClass />
+    <CodeContractsLibPaths />
+    <CodeContractsExtraRewriteOptions />
+    <CodeContractsExtraAnalysisOptions />
+    <CodeContractsSQLServerOption />
+    <CodeContractsBaseLineFile />
+    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
+    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
+    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
+    <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
+    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,28 +87,40 @@
     <Compile Include="..\SolutionAssemblyInfo.cs">
       <Link>Properties\SolutionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Backup\account_backup_datacenter_general_network_server.cs" />
+    <Compile Include="Backup\BackupClientTypes.cs" />
+    <Compile Include="Backup\BackupStoragePolicies.cs" />
+    <Compile Include="Backup\BackupSchedulePolicies.cs" />
+    <Compile Include="Backup\NewBackupClient.cs" />
     <Compile Include="Datacenter\DatacenterDetail.cs" />
     <Compile Include="Datacenter\DatacenterSummary.cs" />
     <Compile Include="Datacenter\DatacentersWithDiskSpeedDetails.cs" />
     <Compile Include="Datacenter\DiskSpeedDetail.cs" />
+    <Compile Include="Datacenter\Region.cs" />
+    <Compile Include="Datacenter\Geos.cs" />
     <Compile Include="Datacenter\IDatacenterSummary.cs" />
     <Compile Include="Datacenter\IDatacenterDetail.cs" />
     <Compile Include="Datacenter\IDiskSpeedDetail.cs" />
     <Compile Include="Directory\Account.cs" />
+    <Compile Include="Directory\Accounts.cs" />
     <Compile Include="Directory\IAccount.cs" />
     <Compile Include="Directory\IRole.cs" />
     <Compile Include="Directory\Role.cs" />
     <Compile Include="General\ApiStatus.cs" />
-    <Compile Include="Server\CustomImageDetail.cs" />
+    <Compile Include="Server\DeployedServerWithDisk.cs" />
     <Compile Include="Server\ICustomImageDetail.cs" />
     <Compile Include="Server\IImageDetail.cs" />
     <Compile Include="Server\IMachineSpecification.cs" />
-    <Compile Include="Server\ImagesWithSoftwareLabels.cs" />
-    <Compile Include="Server\ImageDetail.cs" />
     <Compile Include="Server\IOperatingSystem.cs" />
     <Compile Include="Server\MachineSpecification.cs" />
+    <Compile Include="Server\NetworkWithLocations.cs" />
+    <Compile Include="Server\NewServerToDeploy.cs" />
     <Compile Include="Server\OperatingSystem.cs" />
     <Compile Include="Server\OperatingSystemType.cs" />
+    <Compile Include="Server\Server.cs" />
+    <Compile Include="Server\ServerImage.cs" />
+    <Compile Include="Server\Status.cs" />
+    <Compile Include="Software\SoftwareLabels.cs" />
     <Compile Include="XmlNamespaceConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -81,6 +128,10 @@
     <CodeAnalysisDictionary Include="..\..\CustomDictionary.xml">
       <Link>Properties\CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

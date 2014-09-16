@@ -1,34 +1,30 @@
-﻿using System;
-
-namespace DD.CBU.Compute.Powershell
+﻿namespace DD.CBU.Compute.Powershell
 {
-	using Api.Client;
+    using System;
+    
+    using Api.Client;
 	using Api.Contracts.Directory;
 
-	/// <summary>
+    using DD.CBU.Compute.Api.Client.Interfaces;
+
+    /// <summary>
 	///		Represents a connection to the CaaS API.
 	/// </summary>
 	public sealed class ComputeServiceConnection
 		: IDisposable
 	{
-		/// <summary>
-		///		The compute API client representing the API client.
-		/// </summary>
-		ComputeApiClient		_apiClient;
-
-		/// <summary>
+	    /// <summary>
 		///		Create a new compute service connection.
 		/// </summary>
 		/// <param name="apiClient">
 		///		The CaaS API client represented by the connection.
 		/// </param>
-		public ComputeServiceConnection(ComputeApiClient apiClient)
+		public ComputeServiceConnection(IComputeApiClient apiClient)
 		{
 			if (apiClient == null)
 				throw new ArgumentNullException("apiClient");
 
-
-			_apiClient = apiClient;
+			ApiClient = apiClient;
 		}
 
 		/// <summary>
@@ -38,30 +34,24 @@ namespace DD.CBU.Compute.Powershell
 		{
 			get
 			{
-				return _apiClient.Account;
+				return ApiClient.Account;
 			}
 		}
 
-		/// <summary>
-		///		The CaaS API client represented by the connection.
-		/// </summary>
-		internal ComputeApiClient ApiClient
-		{
-			get
-			{
-				return _apiClient;
-			}
-		}
+	    /// <summary>
+	    ///		The CaaS API client represented by the connection.
+	    /// </summary>
+	    internal IComputeApiClient ApiClient { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		///		Dispose of resources being used by the CaaS API connection.
 		/// </summary>
 		public void Dispose()
 		{
-			if (_apiClient != null)
+			if (ApiClient != null)
 			{
-				_apiClient.Dispose();
-				_apiClient = null;
+				ApiClient.Dispose();
+				ApiClient = null;
 			}
 		}
 	}

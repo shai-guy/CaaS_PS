@@ -1,287 +1,415 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Threading.Tasks;
+﻿using System.Linq;
+
+using DD.CBU.Compute.Api.Contracts.Software;
 
 namespace DD.CBU.Compute.Api.Client
-{	
-	using Contracts.Datacenter;
-	using Contracts.Directory;
-	using Contracts.Server;
-	using Utilities;
+{
+	using System;
+	using System.Collections.Generic;
+	using System.Net;
+	using System.Threading.Tasks;
+
+	using DD.CBU.Compute.Api.Client.Interfaces;
+	using DD.CBU.Compute.Api.Client.Utilities;
+	using DD.CBU.Compute.Api.Contracts.Datacenter;
+	using DD.CBU.Compute.Api.Contracts.Directory;
+	using DD.CBU.Compute.Api.Contracts.General;
+	using DD.CBU.Compute.Api.Contracts.Server;
 
 	/// <summary>
-	///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
-	/// </summary>
+    ///		A client for the Dimension Data Compute-as-a-Service (CaaS) API.
+    /// </summary>
     public sealed class ComputeApiClient
-		: DisposableObject
-	{
-		#region Instance data
+        : DisposableObject, IComputeApiClient
+    {  
+        #region Instance data
 
-		/// <summary>
-		///		Media type formatters used to serialise and deserialise data contracts when communicating with the CaaS API.
-		/// </summary>
-		readonly MediaTypeFormatterCollection	_mediaTypeFormatters = new MediaTypeFormatterCollection();
+        /// <summary>
+        ///		Create a new Compute-as-a-Service API client.
+        /// </summary>
+        /// <param name="targetRegionName">
+        ///		The name of the region whose CaaS API end-point is targeted by the client.
+        /// </param>
+        public ComputeApiClient(string targetRegionName) 
+        {
+            if (String.IsNullOrWhiteSpace(targetRegionName))
+                throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetRegionName'.", "targetRegionName");
 
-		/// <summary>
-		///		The <see cref="HttpMessageHandler"/> used to customise communications with the CaaS API.
-		/// </summary>
-		HttpClientHandler						_clientMessageHandler = new HttpClientHandler();
+            WebApi = new WebApi(targetRegionName);
+        }
 
-		/// <summary>
-		///		The <see cref="HttpClient"/> used to communicate with the CaaS API.
-		/// </summary>
-		HttpClient								_httpClient;
+        /// <summary>
+        /// Creates a new CaaS API client using a base URI.
+        /// </summary>
+        /// <param name="baseUri">The base URI to use for the CaaS API.</param>
+        public ComputeApiClient(Uri baseUri)
+        {
+            if (baseUri == null)
+                throw new ArgumentNullException("baseUri", "Argument cannot be null");
 
-		/// <summary>
-		///		The details for the CaaS account associated with the supplied credentials.
-		/// </summary>
-		Account									_account;
+            if (!baseUri.IsAbsoluteUri)
+                throw new ArgumentException("Base URI supplied is not an absolute URI", "baseUri");
 
-		#endregion // Instance data
-		
-		#region Construction / disposal
+            WebApi = new WebApi(baseUri);
+        }
 
-		/// <summary>
-		///		Create a new Compute-as-a-Service API client.
-		/// </summary>
-		/// <param name="targetRegionName">
-		///		The name of the region whose CaaS API end-point is targeted by the client.
-		/// </param>
-		public ComputeApiClient(string targetRegionName)
-		{
-			if (String.IsNullOrWhiteSpace(targetRegionName))
-				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'targetRegionName'.", "targetRegionName");
+        /// <summary>
+        /// Creates a new CaaS API client using a base URI.
+        /// </summary>
+        public ComputeApiClient(IHttpClient client)
+        {
+            if (client == null)
+                throw new ArgumentNullException("client", "Argument cannot be null");
 
-			_mediaTypeFormatters.XmlFormatter.UseXmlSerializer = true;
-			_httpClient = new HttpClient(_clientMessageHandler);
-			_httpClient.BaseAddress = ApiUris.ComputeBase(targetRegionName);
-		}
+            WebApi = new WebApi(client);
+        }
 
-		/// <summary>
-		///		Dispose of resources being used by the CaaS API client.
-		/// </summary>
-		/// <param name="disposing">
-		///		Explicit disposal?
-		/// </param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (_clientMessageHandler != null)
-				{
-					_clientMessageHandler.Dispose();
-					_clientMessageHandler = null;
-				}
+        /// <summary>
+        ///		Dispose of resources being used by the CaaS API client.
+        /// </summary>
+        /// <param name="disposing">
+        ///		Explicit disposal?
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (WebApi != null)
+                {
+                    WebApi.Dispose();
+                    WebApi = null;
+                }
+            }
+        }
 
-				if (_httpClient != null)
-				{
-					_httpClient.Dispose();
-					_httpClient = null;
-				}
+        #endregion // Construction / disposal
 
-				_account = null;
-			}
-		}
+        #region Public properties
 
-		#endregion // Construction / disposal
+        /// <summary>
+        ///		Read-only information about the CaaS account targeted by the CaaS API client.
+        /// </summary>
+        /// <remarks>
+        ///		<c>null</c>, unless logged in.
+        /// </remarks>
+        public IAccount Account
+        {
+            get
+            {
+                return WebApi.Account;
+            }
+        }
 
-		#region Public properties
+        /// <summary>
+        /// Access to the web API for login/logout and account info
+        /// </summary>
+        public IWebApi WebApi { get; private set; }
 
-		/// <summary>
-		///		Read-only information about the CaaS account targeted by the CaaS API client.
-		/// </summary>
-		/// <remarks>
-		///		<c>null</c>, unless logged in.
-		/// </remarks>
-		/// <seealso cref="LoginAsync"/>
-		public IAccount Account
-		{
-			get
-			{
-				CheckDisposed();
+        /// <summary>
+        ///	Asynchronously log into the CaaS API.
+        /// </summary>
+        /// <param name="accountCredentials">
+        ///	The CaaS account credentials used to authenticate against the CaaS API.
+        /// </param>
+        /// <returns>
+        ///	An <see cref="IAccount"/> implementation representing the CaaS account that the client is logged into.
+        /// </returns>
+        public async Task<IAccount> LoginAsync(ICredentials accountCredentials)
+        {
+            return await WebApi.LoginAsync(accountCredentials);
+        }
 
-				return _account;
-			}
-		}
+        /// <summary>
+        ///	Log out of the CaaS API.
+        /// </summary>
+        public void Logout()
+        {
+            WebApi.Logout();
+        }
 
-		/// <summary>
-		///		Is the API client currently logged in to the CaaS API?
-		/// </summary>
-		public bool IsLoggedIn
-		{
-			get
-			{
-				CheckDisposed();
+        /// <summary>
+        /// Gets a list of software labels
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<SoftwareLabel>> GetListOfSoftwareLabels()
+        {
+            var relativeUrl = string.Format("{0}/softwarelabel", Account.OrganizationId);
+            var uri = new Uri(relativeUrl, UriKind.Relative);
 
-				return _account != null;
-			}
-		}
+            var labels = await WebApi.ApiGetAsync<SoftwareLabels>(uri);
 
-		#endregion // Public properties
+            return labels.Items;
+        }
 
-		#region Public methods
+        /// <summary>
+        /// Returns a list of the Multi-Geography Regions available for the supplied {org-id
+        /// An element is returned for each available Geographic Region.
+        /// </summary>
+        /// <returns>A list of regions associated with the org ID.</returns>
+        public async Task<IEnumerable<Region>> GetListOfMultiGeographyRegions()
+        {
+            var relativeUrl = string.Format("{0}/multigeo", Account.OrganizationId);
+            var uri = new Uri(relativeUrl, UriKind.Relative);
 
-		/// <summary>
-		///		Asynchronously log into the CaaS API.
-		/// </summary>
-		/// <param name="accountCredentials">
-		///		The CaaS account credentials used to authenticate against the CaaS API.
-		/// </param>
-		/// <returns>
-		///		An <see cref="IAccount"/> implementation representing the CaaS account that the client is logged into.
-		/// </returns>
-		public async Task<IAccount> LoginAsync(ICredentials accountCredentials)
-		{
-			if (accountCredentials == null)
-				throw new ArgumentNullException("accountCredentials");
+            var regions = await WebApi.ApiGetAsync<Geos>(uri);
 
-			CheckDisposed();
+            return regions.Items;
+        }
 
-			if (_account != null)
-				throw ComputeApiClientException.AlreadyLoggedIn();
+        /// <summary>
+        /// Allows the current Primary Administrator user to designate a Sub-Administrator user belonging to the 
+        /// same organization to become the Primary Administrator for the organization.
+        /// The Sub-Administrator is identified by their <paramref name="username"/>.
+        /// </summary>
+        /// <param name="username">The Sub-Administrator account.</param>
+        /// <returns>A <see cref="ApiStatus"/> result that describes whether or not the operation was successful.</returns>
+        public Task<ApiStatus> DeleteSubAdministratorAccount(string username)
+        {
+            return ExecuteAccountCommand(username, "{0}/account/{1}?delete");
+        }
 
-			_clientMessageHandler.Credentials = accountCredentials;
-			_clientMessageHandler.PreAuthenticate = true;
+        /// <summary>
+        /// Allows the current Primary Administrator user to designate a Sub-Administrator user belonging to the 
+        /// same organization to become the Primary Administrator for the organization.
+        /// The Sub-Administrator is identified by their <paramref name="username"/>.
+        /// </summary>
+        /// <param name="username">The Sub-Administrator account.</param>
+        /// <returns>A <see cref="ApiStatus"/> result that describes whether or not the operation was successful.</returns>
+        public Task<ApiStatus> DesignatePrimaryAdministratorAccount(string username)
+        {
+            return ExecuteAccountCommand(username, "{0}/account/{1}?primary");
+        }
 
-			try
-			{
-				_account = await ApiGetAsync<Account>(ApiUris.MyAccount);
-			}
-			catch (HttpRequestException eRequestFailure)
-			{
-				Debug.WriteLine(eRequestFailure.GetBaseException(), "BASE EXCEPTION");
 
-				throw;
-			}
-			Debug.Assert(_account != null, "_account != null");
+        /// <summary>
+        /// This function identifies the list of data centers available to the organization of the authenticating user. 
+        /// </summary>
+        /// <returns>The list of data centers associated with the organization.</returns>
+        public async Task<IEnumerable<DatacenterWithMaintenanceStatusType>> GetDataCentersWithMaintenanceStatuses()
+        {
+            var dataCenters = await WebApi.ApiGetAsync<DatacentersWithMaintenanceStatus>(ApiUris.DatacentresWithMaintanence(Account.OrganizationId));
+            return dataCenters.datacenter;
+        }
 
-			return _account;
-		}
+        /// <summary>
+        /// Lists the Accounts belonging to the Organization identified by the organisation. The list will include all 
+        /// SubAdministrator accounts and the Primary Administrator account. The Primary Administrator is unique and is 
+        /// identified by the “primary administrator” role.
+        /// </summary>
+        /// <returns>A list of accounts associated with the organisation.</returns>
+        public async Task<IEnumerable<Account>> GetAccounts()
+        {
+            var relativeUrl = string.Format("{0}/account", Account.OrganizationId);
+            var accounts = await WebApi.ApiGetAsync<Accounts>(new Uri(relativeUrl, UriKind.Relative));
+            return accounts.Items;
+        }
 
-		/// <summary>
-		///		Log out of the CaaS API.
-		/// </summary>
-		public void Logout()
-		{
-			CheckDisposed();
+        /// <summary>
+        /// Adds a new Sub-Administrator Account to the organization. 
+        /// The account is created with a set of roles defining the level of access to the organization’s Cloud 
+        /// resources or the account can be created as “read only”, restricted to just viewing Cloud resources and 
+        /// unable to generate Cloud Reports.
+        /// </summary>
+        /// <param name="account">The account that will be added to the org.</param>
+        /// <returns>A <see cref="Status"/> object instance that shows the results of the operation.</returns>
+        public async Task<Status> AddSubAdministratorAccount(Account account)
+        {
+            var relativeUrl = string.Format("{0}/account", Account.OrganizationId);
 
-			if (_account == null)
-				throw ComputeApiClientException.NotLoggedIn();
+            return await WebApi.ApiPostAsync<Account, Status>(new Uri(relativeUrl, UriKind.Relative), new Account());
+        }
 
-			_account = null;
-			_clientMessageHandler.Credentials = null;
-			_clientMessageHandler.PreAuthenticate = false;
-		}
+        /// <summary>
+        /// This function updates an existing Administrator Account.
+        /// </summary>
+        /// <param name="account">The account to be updated.</param>
+        /// <returns>A <see cref="Status"/> object instance that shows the results of the operation.</returns>
+        public async Task<Status> UpdateAdministratorAccount(Account account)
+        {
+            var parameters = new Dictionary<string, string>();
+            parameters["username"] = account.UserName;
+            parameters["password"] = account.Password;
+            parameters["email"] = account.EmailAddress;
+            parameters["fullname"] = account.FullName;
+            parameters["firstName"] = account.FirstName;
+            parameters["lastName"] = account.LastName;
+            parameters["department"] = account.Department;
+            parameters["customDefined1"] = account.CustomDefined1;
+            parameters["customDefined2"] = account.CustomDefined2;
 
-		/// <summary>
-		///		Asynchronously get a list of all CaaS data centres that are available for use by the specified organisation.
-		/// </summary>
-		/// <param name="organizationId">
-		///		The organisation Id.
-		/// </param>
-		/// <returns>
-		///		A read-only list of <see cref="IDatacenterDetail"/>s representing the data centre information.
-		/// </returns>
-		public async Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCenters(Guid organizationId)
-		{
-			CheckDisposed();
+            var parameterStrings = parameters.Where(kvp=>kvp.Value != null).Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value));
+            var parameterText = string.Join("&", parameterStrings);
 
-			DatacentersWithDiskSpeedDetails datacentersWithDiskSpeedDetails =
-				await ApiGetAsync<DatacentersWithDiskSpeedDetails>(
-					ApiUris.DatacentersWithDiskSpeedDetails(
-						organizationId
-					)
-				);
+            var roles = account.MemberOfRoles.Select(role => string.Format("role={0}", role.Name));
+            var roleParameters = string.Join("&", roles);
 
-			return datacentersWithDiskSpeedDetails.Datacenters;
-		}
+            var postBody = string.Join("&", parameterText, roleParameters);
 
-		/// <summary>
-		///		Get a list of all system-defined images (with software labels) deployed in the specified data centre.
-		/// </summary>
-		/// <param name="locationName">
-		///		The short name of the location in which the data centre is located.
-		/// </param>
-		/// <returns>
-		///		A read-only list <see cref="ImageDetail"/>, sorted by UTC creation date / time, representing the images.
-		/// </returns>
-		public async Task<IReadOnlyList<IImageDetail>> GetImages(string locationName)
-		{
-			if (String.IsNullOrWhiteSpace(locationName))
-				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'locationName'.", "locationName");
+            var relativeUrl = string.Format("{0}/account/{1}", Account.OrganizationId, account.UserName);
+            
+			return await WebApi.ApiPostAsync<string, Status>(new Uri(relativeUrl, UriKind.Relative), postBody);
+        }
 
-			ImagesWithSoftwareLabels imagesWithSoftwareLabels =
-				await ApiGetAsync<ImagesWithSoftwareLabels>(
-					ApiUris.ImagesWithSoftwareLabels(locationName)
-				);
+        private async Task<ApiStatus> ExecuteAccountCommand(string username, string uriFormat)
+        {
+            var uriText = string.Format(uriFormat, Account.OrganizationId, username);
+            var uri = new Uri(uriText, UriKind.Relative);
 
-			return imagesWithSoftwareLabels.Images;
-		}
+            return await WebApi.ApiGetAsync<ApiStatus>(uri);
+        }
 
-		#endregion // Public methods
+        /// <summary>
+        ///		Asynchronously get a list of all CaaS data centres that are available for use by the specified organisation.
+        /// </summary>
+        /// <returns>
+        ///		A read-only list of <see cref="IDatacenterDetail"/>s representing the data centre information.
+        /// </returns>
+        [Obsolete("This method was replaced by GetListOfDataCentersWithMaintenanceStatuses based on CaaS API!")]
+        public async Task<IReadOnlyList<IDatacenterDetail>> GetAvailableDataCenters()
+        {
+            CheckDisposed();
 
-		#region WebAPI invocation
+            DatacentersWithDiskSpeedDetails datacentersWithDiskSpeedDetails =
+                await WebApi.ApiGetAsync<DatacentersWithDiskSpeedDetails>(
+                    ApiUris.DatacentersWithDiskSpeedDetails(
+                        Account.OrganizationId
+                    )
+                );
 
-		/// <summary>
-		///		Invoke a CaaS API operation using a HTTP GET request.
-		/// </summary>
-		/// <typeparam name="TResult">
-		///		The XML-serialisable data contract type into which the response will be deserialised.
-		/// </typeparam>
-		/// <param name="relativeOperationUri">
-		///		The operation URI (relative to the CaaS API's base URI).
-		/// </param>
-		/// <returns>
-		///		The operation result.
-		/// </returns>
-		async Task<TResult> ApiGetAsync<TResult>(Uri relativeOperationUri)
-		{
-			if (relativeOperationUri == null)
-				throw new ArgumentNullException("relativeOperationUri");
+            return datacentersWithDiskSpeedDetails.Datacenters;
+        }
 
-			if (relativeOperationUri.IsAbsoluteUri)
-				throw new ArgumentException("The supplied URI is not a relative URI.", "relativeOperationUri");
+        /// <summary>
+        ///		Get a list of all system-defined images (with software labels) deployed in the specified data centre.
+        /// </summary>
+        /// <param name="locationName">
+        ///		The short name of the location in which the data centre is located.
+        /// </param>
+        /// <returns>
+        ///		A read-only list <see cref="DeployedImageWithSoftwareLabelsType"/>, sorted by UTC creation date / time, representing the images.
+        /// </returns>
+        public async Task<IReadOnlyList<DeployedImageWithSoftwareLabelsType>> GetImages(string locationName)
+        {
+            if (String.IsNullOrWhiteSpace(locationName))
+                throw new ArgumentException(
+                    "Argument cannot be null, empty, or composed entirely of whitespace: 'locationName'.",
+                    "locationName");
 
-			CheckDisposed();
+            var imagesWithSoftwareLabels =
+                await
+                WebApi.ApiGetAsync<DeployedImagesWithSoftwareLabels>(ApiUris.ImagesWithSoftwareLabels(locationName));
 
-			using (HttpResponseMessage response = await _httpClient.GetAsync(relativeOperationUri))
-			{
-				if (response.IsSuccessStatusCode)
-					return await response.Content.ReadAsAsync<TResult>(_mediaTypeFormatters);
+            return imagesWithSoftwareLabels.DeployedImageWithSoftwareLabels;
+        }
 
-				switch (response.StatusCode)
-				{
-					case HttpStatusCode.Unauthorized:
-					{
-						throw ComputeApiException.InvalidCredentials(
-							(
-								(NetworkCredential)_clientMessageHandler.Credentials
-							)
-							.UserName
-						);
-					}
-					default:
-					{
-						throw new HttpRequestException(
-							String.Format(
-								"CaaS API returned HTTP status code {0} ({1}) when performing HTTP GET on '{2}'.",
-								(int)response.StatusCode,
-								response.StatusCode,
-								new Uri(
-									_httpClient.BaseAddress,
-									relativeOperationUri
-								)
-							)
-						);
-					}
-				}
-			}
-		}
+        /// <summary>
+        /// This function lists the available Customer Images at a particular Location for the provided org-id.
+        /// The response adds to the deprecated List Deployed Customer Images in Location function with 
+        /// the addition of zero to many, optional softwareLabel elements, listing the Priced Software packages installed on the Customer Image.
+        /// </summary>
+        /// <param name="networkLocation">The network location</param>
+        /// <returns>A list of deployed customer images with software labels in location</returns>
+        public async Task<IEnumerable<DeployedImageWithSoftwareLabelsType>> GetCustomerServerImages(string networkLocation)
+        {
+            //Contract.Requires(!string.IsNullOrWhiteSpace(networkLocation), "Network location must not be empty or null");
 
-		#endregion // WebAPI invocation
-	}
+            var images = await WebApi.ApiGetAsync<DeployedImagesWithSoftwareLabels>(ApiUris.CustomerImagesWithSoftwareLabels(Account.OrganizationId, networkLocation));
+            return images.DeployedImageWithSoftwareLabels;
+        }
+
+        /// <summary>
+        /// Deploys a server using an image into a specified network.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="networkId"></param>
+        /// <param name="imageId"></param>
+        /// <param name="adminPassword"></param>
+        /// <param name="isStarted"></param>
+        /// <returns></returns>
+	    public async Task<Status> DeployServerImageTask(string name, string description, string networkId, string imageId, string adminPassword, bool isStarted)
+	    {
+            //Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(name), "name argument must not be empty");
+            //Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(networkId), "network id must not be empty");
+            //Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(imageId), "Image id must not be empty");
+            //Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(adminPassword), "administrator password cannot be null or empty");
+
+            return
+                await
+                this.WebApi.ApiPostAsync<NewServerToDeploy, Status>(
+                    ApiUris.DeployServer(Account.OrganizationId),
+                    new NewServerToDeploy
+                        {
+                            name = name,
+                            description = description,
+                            vlanResourcePath =
+                                string.Format("/oec/{0}/network/{1}", Account.OrganizationId, networkId),
+                            imageResourcePath = string.Format("/oec/base/image/{0}", imageId),
+                            administratorPassword = adminPassword,
+                            isStarted = isStarted
+                        });
+	    }
+
+        /// <summary>
+        /// Powers on the server.
+        /// </summary>
+        /// <param name="serverId">The server id</param>
+        /// <returns>Returns a status of the HTTP request</returns>
+        public async Task<Status> ServerPowerOn(string serverId)
+	    {
+	        return await WebApi.ApiGetAsync<Status>(ApiUris.PowerOnServer(Account.OrganizationId, serverId));
+	    }
+        
+        /// <summary>
+        /// Powers off the server
+        /// </summary>
+        /// <param name="serverId">The server id</param>
+        /// <returns>Returns a status of the HTTP request</returns>
+        public async Task<Status> ServerPowerOff(string serverId)
+        {
+            return await this.WebApi.ApiGetAsync<Status>(ApiUris.PoweroffServer(Account.OrganizationId, serverId));
+        }
+
+        /// <summary>
+        /// Hard boot of the server.
+        /// </summary>
+        /// <param name="serverId">The server id</param>
+        /// <returns>Returns a status of the HTTP request</returns>
+        public async Task<Status> ServerRestart(string serverId)
+        {
+            return await this.WebApi.ApiGetAsync<Status>(ApiUris.RebootServer(Account.OrganizationId, serverId));
+        }
+
+        /// <summary>
+        /// "Graceful" shutdown of the server.
+        /// </summary>
+        /// <param name="serverId">The server id</param>
+        /// <returns>Returns a status of the HTTP request</returns>
+        public async Task<Status> ServerShutdown(string serverId)
+        {
+            return await this.WebApi.ApiGetAsync<Status>(ApiUris.ShutdownServer(Account.OrganizationId, serverId));
+        }
+
+        /// <summary>
+        /// Deletes the server. <remarks>The server must be turned off and with backup disabled</remarks>
+        /// </summary>
+        /// <param name="serverId">The server id</param>
+        /// <returns>Returns a status of the HTTP request</returns>
+        public async Task<Status> ServerDelete(string serverId)
+        {
+            return await this.WebApi.ApiGetAsync<Status>(ApiUris.DeleteServer(Account.OrganizationId, serverId));
+        }
+
+        /// <summary>
+        /// Gets all the deployed servers.
+        /// </summary>
+        /// <returns>A list of deployed servers</returns>
+        public async Task<IEnumerable<ServerWithBackupType>> GetDeployedServers()
+        {
+            var servers = await this.WebApi.ApiGetAsync<ServersWithBackup>(ApiUris.DeployedServers(Account.OrganizationId));
+            return servers.server;
+        }
+
+        #endregion // Public methods
+    }
 }
