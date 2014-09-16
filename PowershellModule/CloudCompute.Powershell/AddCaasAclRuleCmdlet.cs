@@ -103,7 +103,7 @@ namespace DD.CBU.Compute.Powershell
         private AclRuleType CreateAclRule()
         {
             return
-                CaaS.ApiClient.CreateAclRule(
+                CaaS.ApiClient.CreateAclRuleAsync(
                     Network.id,
                     AclRuleName,
                     Position,

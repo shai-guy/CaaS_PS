@@ -60,7 +60,7 @@
         /// <returns>The storage policies</returns>
         private IEnumerable<BackupStoragePolicy> GetBackupStoragePolicies()
         {
-            return CaaS.ApiClient.GetBackupStoragePolicies(Server.id).Result;
+            return CaaS.ApiClient.GetBackupStoragePoliciesAsync(Server.id).Result;
         }
     }
 }

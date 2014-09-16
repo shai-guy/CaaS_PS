@@ -51,7 +51,7 @@
         private void DeployServerTask()
         {
             var status =
-                CaaS.ApiClient.DeployServerImageTask(
+                CaaS.ApiClient.DeployServerImageAsync(
                     ServerDetails.Name,
                     ServerDetails.Description,
                     ServerDetails.Network.id,

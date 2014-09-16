@@ -52,7 +52,7 @@
         /// </summary>
         private void DeleteNatRule()
         {
-            var status = CaaS.ApiClient.DeleteNatRule(Network.id, NatRule.id).Result;
+            var status = CaaS.ApiClient.DeleteNatRuleAsync(Network.id, NatRule.id).Result;
             if (status != null)
             {
                 WriteDebug(

@@ -60,7 +60,7 @@
         /// <returns>The NAT rules</returns>
         private IEnumerable<NatRuleType> GetNatRules()
         {
-            return CaaS.ApiClient.GetNatRules(Network.id).Result;
+            return CaaS.ApiClient.GetNatRulesAsync(Network.id).Result;
         }
     }
 }

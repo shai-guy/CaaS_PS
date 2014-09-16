@@ -59,7 +59,7 @@
         /// <returns>The images</returns>
         private IEnumerable<DeployedImageWithSoftwareLabelsType> GetCustomerImages()
         {
-            return CaaS.ApiClient.GetCustomerServerImages(NetworkWithLocations.location).Result;
+            return CaaS.ApiClient.GetCustomerServerImagesAsync(NetworkWithLocations.location).Result;
         }
     }
 }

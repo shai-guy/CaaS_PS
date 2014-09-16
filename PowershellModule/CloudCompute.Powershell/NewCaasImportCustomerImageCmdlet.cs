@@ -66,7 +66,7 @@ namespace DD.CBU.Compute.Powershell
 
         ServerImageWithStateType ImportCustomerImage()
         {
-            return CaaS.ApiClient.ImportCustomerImage(CustomerImageName, OvfPackage.name, Network.location, Description).Result;
+            return CaaS.ApiClient.ImportCustomerImageAsync(CustomerImageName, OvfPackage.name, Network.location, Description).Result;
         }
     }
 }

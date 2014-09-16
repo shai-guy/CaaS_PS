@@ -23,7 +23,7 @@
 
             try
             {
-                var networks = CaaS.ApiClient.GetNetworksTask().Result;
+                var networks = CaaS.ApiClient.GetNetworksAsync().Result;
 
                 if (networks.Any())
                 {

@@ -60,7 +60,7 @@
         /// <returns>The images</returns>
         private async Task<IEnumerable<DeployedImageWithSoftwareLabelsType>> GetOsImagesTask()
         {
-            return await CaaS.ApiClient.GetImages(NetworkWithLocations.location);
+            return await CaaS.ApiClient.GetImagesAsync(NetworkWithLocations.location);
         }
     }
 }

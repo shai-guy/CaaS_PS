@@ -60,7 +60,7 @@
         /// <returns>The images</returns>
         private IEnumerable<BackupClientType> GetBackupClientTypes()
         {
-            return CaaS.ApiClient.GetBackupClientTypes(Server.id).Result;
+            return CaaS.ApiClient.GetBackupClientTypesAsync(Server.id).Result;
         }
     }
 }

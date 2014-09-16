@@ -74,7 +74,7 @@
                         this));
                 return;
             }
-            var status = CaaS.ApiClient.EnableBackup(Server.id, BackupServicePlan.Value).Result;
+            var status = CaaS.ApiClient.EnableBackupAsync(Server.id, BackupServicePlan.Value).Result;
             if (status != null)
             {
                 WriteDebug(
@@ -89,7 +89,7 @@
 
         private void DeprovisionBackup()
         {
-            var status = CaaS.ApiClient.DisableBackup(Server.id).Result;
+            var status = CaaS.ApiClient.DisableBackupAsync(Server.id).Result;
             if (status != null)
             {
                 WriteDebug(

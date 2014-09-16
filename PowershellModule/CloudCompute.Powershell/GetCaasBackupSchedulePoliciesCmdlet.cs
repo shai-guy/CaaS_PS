@@ -60,7 +60,7 @@
         /// <returns>The schedule policies</returns>
         private IEnumerable<BackupSchedulePolicy> GetBackupSchedulePolicies()
         {
-            return CaaS.ApiClient.GetBackupSchedulePolicies(Server.id).Result;
+            return CaaS.ApiClient.GetBackupSchedulePoliciesAsync(Server.id).Result;
         }
     }
 }

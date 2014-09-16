@@ -45,16 +45,16 @@
                 switch (Action)
                 {
                     case ServerAction.PowerOff:
-                        status = CaaS.ApiClient.ServerPowerOff(Server.id).Result;
+                        status = CaaS.ApiClient.ServerPowerOffAsync(Server.id).Result;
                         break;
                     case ServerAction.PowerOn:
-                        status = CaaS.ApiClient.ServerPowerOn(Server.id).Result;
+                        status = CaaS.ApiClient.ServerPowerOnAsync(Server.id).Result;
                         break;
                     case ServerAction.Restart:
-                        status = CaaS.ApiClient.ServerRestart(Server.id).Result;
+                        status = CaaS.ApiClient.ServerRestartAsync(Server.id).Result;
                         break;
                     case ServerAction.Shutdown:
-                        status = CaaS.ApiClient.ServerShutdown(Server.id).Result;
+                        status = CaaS.ApiClient.ServerShutdownAsync(Server.id).Result;
                         break;
                     default:
                         ThrowTerminatingError(

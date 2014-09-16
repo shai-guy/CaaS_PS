@@ -66,7 +66,7 @@
         /// </summary>
         private void ModifyBackupClient()
         {
-            var status = CaaS.ApiClient.ModifyBackupClient(Server.id, BackupClient, StoragePolicy, SchedulePolicy, Aletring).Result;
+            var status = CaaS.ApiClient.ModifyBackupClientAsync(Server.id, BackupClient, StoragePolicy, SchedulePolicy, Aletring).Result;
             if (status != null)
             {
                 WriteDebug(

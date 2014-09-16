@@ -56,7 +56,7 @@
         /// </summary>
         private void RunBackupNow()
         {
-            var status = CaaS.ApiClient.InitiateBackup(Server.id, BackupClient).Result;
+            var status = CaaS.ApiClient.InitiateBackupAsync(Server.id, BackupClient).Result;
             if (status != null)
             {
                 WriteDebug(

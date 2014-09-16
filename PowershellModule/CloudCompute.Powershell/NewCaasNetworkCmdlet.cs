@@ -35,7 +35,7 @@ namespace DD.CBU.Compute.Powershell
 
             try
             {
-                var status = CaaS.ApiClient.CreateNetwork(Name, Datacentre.location, Description).Result;
+                var status = CaaS.ApiClient.CreateNetworkAsync(Name, Datacentre.location, Description).Result;
                 if (status != null)
                     WriteDebug(
                         string.Format(

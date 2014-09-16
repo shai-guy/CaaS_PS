@@ -59,7 +59,7 @@
         /// <returns>The backup clients</returns>
         private IEnumerable<BackupClientDetailsType> GetBackupClients()
         {
-            return CaaS.ApiClient.GetBackupClients(Server.id).Result;
+            return CaaS.ApiClient.GetBackupClientsAsync(Server.id).Result;
         }
     }
 }

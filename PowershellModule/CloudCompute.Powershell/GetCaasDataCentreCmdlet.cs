@@ -22,7 +22,7 @@
 
             try
             {
-                var dcs = CaaS.ApiClient.GetDataCentersWithMaintenanceStatuses().Result;
+                var dcs = CaaS.ApiClient.GetDataCentersWithMaintenanceStatusesAsync().Result;
 
                 if (dcs.Any())
                 {

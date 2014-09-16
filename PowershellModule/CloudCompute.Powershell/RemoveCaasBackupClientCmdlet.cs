@@ -53,7 +53,7 @@
         /// </summary>
         private void RemoveBackupClient()
         {
-            var status = CaaS.ApiClient.RemoveBackupClient(Server.id, BackupClient).Result;
+            var status = CaaS.ApiClient.RemoveBackupClientAsync(Server.id, BackupClient).Result;
             if (status != null)
             {
                 WriteDebug(

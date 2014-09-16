@@ -55,7 +55,7 @@
         /// <returns>The packages</returns>
         private IEnumerable<OvfPackageType> GetOvfPackages()
         {
-            var packages = CaaS.ApiClient.GetOvfPackages().Result;
+            var packages = CaaS.ApiClient.GetOvfPackagesAsync().Result;
             return packages.ovfPackage;
         }
     }

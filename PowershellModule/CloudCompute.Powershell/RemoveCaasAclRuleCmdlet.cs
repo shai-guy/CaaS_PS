@@ -52,7 +52,7 @@
         /// </summary>
         private void DeleteAclRule()
         {
-            var status = CaaS.ApiClient.DeleteAclRule(Network.id, AclRule.id).Result;
+            var status = CaaS.ApiClient.DeleteAclRuleAsync(Network.id, AclRule.id).Result;
             if (status != null)
             {
                 WriteDebug(

@@ -56,7 +56,7 @@
         /// </summary>
         private void RemoveBackupJob()
         {
-            var status = CaaS.ApiClient.CancelBackupJob(Server.id, BackupClient).Result;
+            var status = CaaS.ApiClient.CancelBackupJobAsync(Server.id, BackupClient).Result;
             if (status != null)
             {
                 WriteDebug(

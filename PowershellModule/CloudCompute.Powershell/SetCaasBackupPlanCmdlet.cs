@@ -28,7 +28,7 @@
 
             try
             {
-                var status = CaaS.ApiClient.ChangeBackupPlan(Server.id, BackupServicePlan).Result;
+                var status = CaaS.ApiClient.ChangeBackupPlanAsync(Server.id, BackupServicePlan).Result;
 
                 if (status != null)
                 {

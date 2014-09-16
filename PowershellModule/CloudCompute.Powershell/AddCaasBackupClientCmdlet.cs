@@ -85,7 +85,7 @@
                 alerting = new AlertingType { emailAddress = EmailAddresses.ToArray(), trigger = Trigger.Value };
             }
 
-            var status = CaaS.ApiClient.AddBackupClient(Server.id, ClientType, StoragePolicy, SchedulePolicy, alerting).Result;
+            var status = CaaS.ApiClient.AddBackupClientAsync(Server.id, ClientType, StoragePolicy, SchedulePolicy, alerting).Result;
             if (status != null)
             {
                 WriteDebug(

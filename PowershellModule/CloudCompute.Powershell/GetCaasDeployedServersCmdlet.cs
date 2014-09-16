@@ -55,7 +55,7 @@
         /// <returns>The images</returns>
         private async Task<IEnumerable<ServerWithBackupType>> GetDeployedServers()
         {
-            return await CaaS.ApiClient.GetDeployedServers();
+            return await CaaS.ApiClient.GetDeployedServersAsync();
         }
     }
 }

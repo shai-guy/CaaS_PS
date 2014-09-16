@@ -28,7 +28,7 @@
 
             try
             {
-                var status = CaaS.ApiClient.DeleteNetwork(Network.id).Result;
+                var status = CaaS.ApiClient.DeleteNetworkAsync(Network.id).Result;
                 if (status != null)
                     WriteDebug(
                         string.Format(

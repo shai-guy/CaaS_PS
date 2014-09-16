@@ -27,7 +27,7 @@
 
             try
             {
-                var status = CaaS.ApiClient.ServerDelete(Server.id).Result;
+                var status = CaaS.ApiClient.ServerDeleteAsync(Server.id).Result;
 
                 if (status != null)
                     WriteDebug(

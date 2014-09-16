@@ -60,7 +60,7 @@
         /// <returns>The ACL Rules</returns>
         private IEnumerable<AclRuleType> GetAclRules()
         {
-            return CaaS.ApiClient.GetAclRules(NetworkWithLocations.id).Result;
+            return CaaS.ApiClient.GetAclRulesAsync(NetworkWithLocations.id).Result;
         }
     }
 }

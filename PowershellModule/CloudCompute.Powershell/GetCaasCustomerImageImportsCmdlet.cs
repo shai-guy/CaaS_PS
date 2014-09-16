@@ -55,7 +55,7 @@
         /// <returns>The customer image imports in progress</returns>
         private IEnumerable<ServerImageWithStateType> GetCustomerImageImports()
         {
-            return CaaS.ApiClient.GetCustomerImagesImports().Result;
+            return CaaS.ApiClient.GetCustomerImagesImportsAsync().Result;
         }
     }
 }
